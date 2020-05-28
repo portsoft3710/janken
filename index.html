@@ -9,15 +9,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-<script type="text/javascript" src="common491tu.js?2020052404"></script>
-<script type="text/javascript" src="messageBox.js?2020052402"></script>
+<script type="text/javascript" src="./messageBox.js?2020052402"></script>
 <link href="css/style.css?2020052601" rel="stylesheet" type="text/css" />
 <link href="css/messageBox.css" rel="stylesheet" type="text/css" />
  <link rel="manifest" href="./manifest.json">
 <script>
 window.addEventListener('load', function() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register("service-worker.js")
+    navigator.serviceWorker.register("./service-worker.js")
       .then(function(registration) {
         console.log("serviceWorker registed.");
       }).catch(function(error) {
