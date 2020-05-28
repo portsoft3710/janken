@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta http-equiv="content-language" content="ja">
+<title></title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<script type="text/javascript" src="common491tu.js?2020052404"></script>
+<script type="text/javascript" src="messageBox.js?2020052402"></script>
+<link href="css/style.css?2020052601" rel="stylesheet" type="text/css" />
+<link href="css/messageBox.css" rel="stylesheet" type="text/css" />
+ <link rel="manifest" href="./manifest.json">
+<script>
+window.addEventListener('load', function() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register("service-worker.js")
+      .then(function(registration) {
+        console.log("serviceWorker registed.");
+      }).catch(function(error) {
+        console.log("serviceWorker error.", error);
+      });
+  }
+});
+</script>
+</head>
+
+<body onload="bodyOnload();" style="background-color:#fff;">
+<link href="https://fonts.googleapis.com/css?family=Kosugi+Maru" rel="stylesheet">
+
+<div id="top" style="background-color:  #66cdaa; padding-top: 5px; padding-bottom: 2px; width: 100%; text-align: center;">
+<span class="point" style="position: static;">
+<p id="msg"></p></span>
+	<img src="image/001.png" width="17%;" onclick="pointPresent();">
+	<img src="image/002.png" width="60%;">
+	<img src="image/003.png" width="18.5%;">
+</div>
+
+<div id="midashi1" style="margin-top:0px; width:100%; text-align:center">
+	<img src="./image/006.png" style="width:100%;">
+</div>
+<p style="text-align: center;">〜指定の時間内で選んでね！〜</p>
+<div class="wrapper">
+<div class="janken-wrapper">
+	<p>1回目チャレンジタイム（00:00～12:00）</p>
+	<div class="janken"><input type="radio" id="janken1-g" name="janken1">
+	<label for="janken1-g" onclick="showMessage('1')"><img src="image/gu.jpg"></label></div>
+	<div class="janken"><input type="radio" id="janken1-c" name="janken1">
+	<label for="janken1-c" onclick="showMessage('1')"><img src="image/choki.jpg"></label></div>
+	<div class="janken"><input type="radio" id="janken1-p" name="janken1">
+	<label for="janken1-p" onclick="showMessage('1')"><img src="image/pa.jpg"></label></div>
+</div>
+<div class="timer" id="timer1"></div>
+<div class="janken-wrapper">
+	<p>2回目チャレンジタイム（12:00～18:00）</p>
+	<div class="janken"><input type="radio" id="janken2-g" name="janken2">
+	<label for="janken2-g" onclick="showMessage('2')"><img src="image/gu.jpg"></label></div>
+	<div class="janken"><input type="radio" id="janken2-c" name="janken2">
+	<label for="janken2-c" onclick="showMessage('2')"><img src="image/choki.jpg"></label></div>
+	<div class="janken"><input type="radio" id="janken2-p" name="janken2">
+	<label for="janken2-p" onclick="showMessage('2')"><img src="image/pa.jpg"></label></div>
+</div>
+<div class="timer" id="timer2"></div>
+<div class="janken-wrapper">
+	<p>3回目チャレンジタイム（18:00～24:00）</p>
+	<div class="janken"><input type="radio" id="janken3-g" name="janken3">
+	<label for="janken3-g" onclick="showMessage('3')"><img src="image/gu.jpg"></label></div>
+	<div class="janken"><input type="radio" id="janken3-c" name="janken3">
+	<label for="janken3-c" onclick="showMessage('3')"><img src="image/choki.jpg"></label></div>
+	<div class="janken"><input type="radio" id="janken3-p" name="janken3">
+	<label for="janken3-p" onclick="showMessage('3')"><img src="image/pa.jpg"></label></div>
+</div>
+<div class="timer" id="timer3"></div>
+
+<div id="howto">
+	<a href="howto.html">使い方</a>
+</div>
+
+<div id="back" style="text-align: center;">
+<a href="trigger_howto.html">基本機能・注意事項</a>
+</div>
+
+<br>
+<input type="time" id="resetTime"><button type="button" id="reset" onclick="reset()">リセット</button>
+<br>
+       
+</div>
+<div id="log"></div>
+<div id="screenLock"></div>
+<div id="messageBox" style="visibility: hidden;">
+	<div id="messageBody">確認ダイアログ</div>
+	<div id="messageButton">
+		<input type="text" id="prompt" style="display: inline;">
+		<button id="confirmOk" style="display: inline;">OK</button>
+		<button id="confirmCancel" style="display: inline;">キャンセル</button>
+	</div>
+</div>
+<script type="text/javascript">
+
+var stampIds = '';
+
+var IMG_BASE_URL = './image/';
+
+var imgMsg = new Array(new Image(), new Image());
+var INIT_ALL_STEP = 4;
+var initStep = 0;
+var dispStep = 0;
+
+var STATE_LOADING = 0;
+var STATE_INIT = 1;
+var STATE_WAIT = 2;
+var pageState = STATE_LOADING;
+//sendChgPoint('0000000001', -40, 'clear');
+var collectCount = 0;
+var collectCountLast = 0;
+
+
+var POINT_WIN = 100;
+var POINT_DRAW = 10;
+var POINT_LOSE = 5;
+
+var CHANGE_POINT = 100;
+var RESULT_MESSAGE = {}
+RESULT_MESSAGE[POINT_WIN] = '勝ちました！　おめでとう';
+RESULT_MESSAGE[POINT_DRAW] = 'あいこでした。。';
+RESULT_MESSAGE[POINT_LOSE] = '残念。。　負けました';
+
+//ジャンケンを選択できる時間(何時～何時まで)
+var JANKEN_TIME1_FROM = new Date(new Date().setHours(12, 0, 0));
+var JANKEN_TIME1_TO = new Date(new Date().setHours(13, 00, 0));
+var JANKEN_TIME2_FROM = new Date(new Date().setHours(21, 0, 0));
+var JANKEN_TIME2_TO = new Date(new Date().setHours(21, 45, 0));
+var JANKEN_TIME3_FROM = new Date(new Date().setHours(21, 0, 0));
+var JANKEN_TIME3_TO = new Date(new Date().setHours(23, 0, 0));
+
+//１回目のトリガー認識期間
+var TIME1_FROM = new Date(new Date().setHours(00, 00, 0));
+var TIME1_TO = new Date(new Date().setHours(14, 00, 0));
+
+//２回目のトリガー認識期間
+var TIME2_FROM = new Date(new Date().setHours(14, 01, 00));
+var TIME2_TO = new Date(new Date().setHours(18, 00, 00));
+
+//３回目のトリガー認識期間
+var TIME3_FROM = new Date(new Date().setHours(18, 01, 00));
+var TIME3_TO = new Date(new Date().setHours(23, 59, 0));
+
+//var JANKEN_G = '491tu0058';
+//var JANKEN_C = '491tu0059';
+//var JANKEN_P = '491tu0060';
+
+var JANKEN_G = '491tu0000';
+var JANKEN_C = '491tu0059';
+var JANKEN_P = '491tu0060';
+
+// =RESETがtrueの場合リセット→ RESET_TIME以前の時間に取得したトリガーは無効として扱う
+var RESET = true;
+var RESET_TIME = new Date(new Date().setHours(08, 00, 0));
+/*localStorage.removeItem('jankenResult1');
+localStorage.removeItem('jankenResult2');
+localStorage.removeItem('jankenResult3');*/
+function bodyOnload(){
+    setTitleID("mtp491tu");
+    localStorage.removeItem('pointChnage');
+    //sendChgPoint(operationId() , 100 , "test");
+	if(RESET){
+		localStorage.setItem('jankenReset', RESET_TIME);
+		for(let i = 1; i <= 3; i++){
+			if(localStorage.getItem('jankenResult' + i)){
+				const result = JSON.parse(localStorage.getItem('jankenResult' + i));
+                if(result['resultTime']){
+                    if(new Date(result['resultTime']) < new Date(RESET_TIME)){
+                        delete result['point'];
+                    }
+                }
+                if(result['jankenTime']){
+                    if(new Date(result['jankenTime']) < new Date(RESET_TIME)){
+                        delete result['jankenTime'];
+                        if(result['selected']){
+                            delete result['selected'];                           
+                       }
+                    }
+                }
+                localStorage.setItem('jankenResult' + i, JSON.stringify(result));
+			}
+		}
+	}
+    init();
+	countdownTimer();
+	setMsgImage(0, IMG_BASE_URL + 'msg_frame.png');
+	setMsgImage(1, IMG_BASE_URL + 'msg_btn.png');
+}
+
+function triggerListRenew() {
+	if(pageState == STATE_LOADING){
+		pageState = STATE_INIT;
+		init();
+	}
+	else if(pageState == STATE_WAIT){
+		dispStep = 0;
+		collectCount = 0;
+		//redrawStamp();
+	}
+    redrawStamp();
+}
+
+function init() {
+	initStep++;
+	//初期処理完了
+	//if(initStep >= INIT_ALL_STEP){
+        /*const now = new Date();
+        // 指定時間外はじゃんけんを選択できない
+        if(now < JANKEN_TIME_FROM || JANKEN_TIME_TO < now){
+            for(let i = 1;i <= 3; i++){		
+                const jankenRadio = document.getElementsByName('janken' + i);
+                for(let j = 0;j < jankenRadio.length; j++){
+                    jankenRadio[j].disabled = true;
+                }		
+            }
+        }*/
+
+        const today00 = new Date(new Date().setHours(0, 0, 0, 0));
+        for(let i = 1; i <= 3; i++){
+            $('janken' + i + '-g').value = JANKEN_G;
+            $('janken' + i + '-c').value = JANKEN_C;
+            $('janken' + i + '-p').value = JANKEN_P;
+
+            if(localStorage.getItem('jankenResult' + i)){
+                const result = JSON.parse(localStorage.getItem('jankenResult' + i));
+                if(new Date(result['jankenTime']) < today00){
+                    localStorage.removeItem('jankenResult' + i);
+                }
+                else{
+                    const selectedJanken = result['selected'];
+                    const jankenRadio = document.getElementsByName('janken' + i);
+                    if(selectedJanken){
+                        for(let j = 0; j < jankenRadio.length; j++){
+                            jankenRadio[j].disabled = true;
+                            if(selectedJanken == jankenRadio[j].value){
+                                jankenRadio[j].checked = true;
+                            }
+                        }                        
+                    }
+                }
+            }
+        }
+		//redrawStamp();
+	//}
+}
+
+
+function redrawStamp(){
+    if(USER_TRIGGER_LIST != null){
+		//$log('最後の受信トリガー:' + USER_TRIGGER_LIST[USER_TRIGGER_LIST.length-1].id);
+		let lastTrigger = {};
+		const trigger = USER_TRIGGER_LIST[USER_TRIGGER_LIST.length-1];
+		const stampIds = trigger.id;
+		if(stampIds == JANKEN_G || stampIds == JANKEN_C || stampIds == JANKEN_P){
+			const getTime = trigger.gettime;
+			const getTimemm = new Date(getTime).getTime();
+			let resetTime = new Date(2000, 1, 1);
+			if(localStorage.getItem('jankenReset')){
+				resetTime = new Date(localStorage.getItem('jankenReset'));
+			}
+			if(TIME1_FROM <= getTimemm && getTimemm < TIME1_TO && resetTime < getTimemm){
+				lastTrigger['janken1'] = trigger;
+			}
+			else if(TIME2_FROM <= getTimemm && getTimemm < TIME2_TO && resetTime < getTimemm){
+				lastTrigger['janken2'] = trigger;
+			}
+			else if(TIME3_FROM <= getTimemm && getTimemm < TIME3_TO && resetTime < getTimemm){
+				lastTrigger['janken3'] = trigger;
+			}
+		}
+        /*for(let listIdx = 0; listIdx < USER_TRIGGER_LIST.length; listIdx++){
+			const stampIds = USER_TRIGGER_LIST[listIdx].id;
+			if(stampIds == JANKEN_G || stampIds == JANKEN_C || stampIds == JANKEN_P){
+				const getTime = USER_TRIGGER_LIST[listIdx].gettime;
+				const getTimemm = new Date(getTime).getTime();
+				let resetTime = new Date(2000, 1, 1);
+				if(localStorage.getItem('jankenReset')){
+					resetTime = new Date(localStorage.getItem('jankenReset'));
+				}
+				if(TIME1_FROM <= getTimemm && getTimemm < TIME1_TO && resetTime < getTimemm){
+    				lastTrigger['janken1'] = USER_TRIGGER_LIST[listIdx];
+				}
+				else if(TIME2_FROM <= getTimemm && getTimemm < TIME2_TO && resetTime < getTimemm){
+					lastTrigger['janken2'] = USER_TRIGGER_LIST[listIdx];
+				}
+				else if(TIME3_FROM <= getTimemm && getTimemm < TIME3_TO && resetTime < getTimemm){
+					lastTrigger['janken3'] = USER_TRIGGER_LIST[listIdx];
+				}
+			}
+		}*/
+		//if(lastTrigger['janken1'])$log('受信トリガー(じゃんけん1):' + lastTrigger['janken1'].id);
+		//if(lastTrigger['janken2'])$log('受信トリガー(じゃんけん2):' + lastTrigger['janken2'].id);
+		//if(lastTrigger['janken3'])$log('受信トリガー(じゃんけん3):' + lastTrigger['janken3'].id);
+		for(let i = 1; i <= 3; i++){
+			if(localStorage.getItem('jankenResult' + i)){
+				const result = JSON.parse(localStorage.getItem('jankenResult' + i));
+				if(!result['point'] && lastTrigger['janken' + i]){
+					result['point'] = checkJanken('janken' + i, lastTrigger['janken' + i].id);
+                    result['resultTime'] = new Date();
+					// ポイント付与
+					sendChgPoint(operationId(), result['point'] , "じゃんけん");
+					localStorage.setItem('jankenResult' + i, JSON.stringify(result));
+                    MessageBox.Alert(
+                        RESULT_MESSAGE[result['point']] + '<br>' + result['point'] + 'ポイント獲得しました。',
+                    function(){
+				}
+			);
+
+				}
+			}
+		}
+	}
+    pageState = STATE_WAIT;
+}
+
+function checkJanken(jankenName, triggerId){
+	const jankenRadio = document.getElementsByName(jankenName);
+	let selectedJanken;
+	let point;
+	for(let i = 0;i < jankenRadio.length; i++){
+		if(jankenRadio[i].checked){
+			selectedJanken = jankenRadio[i].value;
+		}
+	}
+	if(!selectedJanken){
+		point = POINT_LOSE;
+	}
+	else{
+		if(selectedJanken == triggerId){
+			point = POINT_DRAW;
+		}
+		else{
+			if(selectedJanken == JANKEN_G && triggerId == JANKEN_C){
+				point = POINT_WIN;
+			}
+			else if(selectedJanken == JANKEN_G && triggerId == JANKEN_P){
+				point = POINT_LOSE;
+			}
+			else if(selectedJanken == JANKEN_C && triggerId == JANKEN_G){
+				point = POINT_LOSE;
+			}
+			else if(selectedJanken == JANKEN_C && triggerId == JANKEN_P){
+				point = POINT_WIN;
+			}
+			else if(selectedJanken == JANKEN_P && triggerId == JANKEN_G){
+				point = POINT_WIN;
+			}
+			else if(selectedJanken == JANKEN_P && triggerId == JANKEN_C){
+				point = POINT_LOSE;
+			}
+		}
+	}
+	//$log('じゃんけんID：' + selectedJanken);
+	//$log('トリガーID' + triggerId);
+	return point;
+}
+function operationId(){
+	var date_today = new Date();
+	var yyyy = date_today.getFullYear();
+	var mm = ("00" + (date_today.getMonth()+1)).slice(-2);
+	var dd = ("00" + date_today.getDate()).slice(-2);
+	var hh = ("00" + date_today.getHours()).slice(-2);
+	var nn = ("00" + date_today.getMinutes()).slice(-2);
+	var ss =  ("00" + date_today.getSeconds()).slice(-2);
+	var str_today = mm + dd + hh + nn + ss;
+	//var str_today = yyyy + mm + dd + hh;
+	return str_today;
+}
+function pointPresent(){
+	//setTitleID("mtp491sd");
+	if(USER_POINT >= CHANGE_POINT){
+		MessageBox.Confirm(
+			"特典と本当に交換しますか？<br>（OKの場合はスタッフに見せながら）",
+			function(){
+                setTitleID("mtp491tu");
+                localStorage.setItem('pointChange', new Date());
+                if(sendChgPoint(operationId() , CHANGE_POINT * -1 , "javaScriptからの" + CHANGE_POINT + "ポイント減")){
+                    console.log("成功");
+                }
+			},
+			function(){}
+		);
+    }
+    else{
+		MessageBox.Alert(
+			"まだ" + CHANGE_POINT + "ポイントたまっていません",
+			function(){
+			}
+        );
+    }
+}    
+    
+function dispCurrentPoint(callback){
+
+	if(USER_POINT != null){
+		document.getElementById('msg').innerHTML = USER_POINT + ' point';
+	}
+	else{
+		document.getElementById('msg').innerHTML = '0 point';
+	}
+    var userPoint;
+    setTimeout(function(){
+        userPoint = USER_POINT;
+        callback(userPoint);
+    }, 1000);
+}
+
+
+
+function setMsgImage(idx, path){
+	imgMsg[idx] = new Image();
+	imgMsg[idx].src = srcUrl(path);
+	imgMsg[idx].onload = function() {init();};
+}
+function pointUseResult(result, usePoint, currentPoint){
+    USER_POINT = currentPoint;
+    //alert(USER_POINT);
+    if(USER_POINT != null){
+		document.getElementById('msg').innerHTML = USER_POINT + ' point';
+	}
+	else{
+		document.getElementById('msg').innerHTML = '0 point';
+	}
+    if(usePoint == CHANGE_POINT * -1 && localStorage['pointChange']){
+        window.location.href = "kokan_thankyou.html";
+   }
+}
+
+function moveDigit(num){return (num <= 9 ? '0' : '') + num.toString();}
+function $(id){return document.getElementById(id);}
+function $S(id){return $(id).style;}
+function $V(id){$S(id).visibility = 'visible';}
+function $H(id){$S(id).visibility = 'hidden';}
+function $I(id){$S(id).display = 'inline';}
+function $N(id){$S(id).display = 'none';}
+function srcUrl(fn){return (fn + '?' + new Date().getTime());}
+function $log(m){
+	//$('log').insertAdjacentHTML('beforeend', '<br>' + m);
+	document.getElementById('log').insertAdjacentHTML('beforeend', '<br>' + m);
+}
+var popupopen = function(){
+	document.getElementById("howtoPopup").style.display="block";
+}
+var popupclose = function(){
+	document.getElementById("howtoPopup").style.display="none";
+}
+
+
+function reset(){
+	const resetValue = $('resetTime').value;
+	if(resetValue !== ''){
+		const resetTime = new Date(new Date().setHours(resetValue.split(':')[0] * 1, resetValue.split(':')[1] * 1, 0, 0));
+		localStorage.setItem('jankenReset', resetTime);
+		for(let i = 1; i <= 3; i++){
+			if(localStorage.getItem('jankenResult' + i)){
+				localStorage.removeItem('jankenResult' + i);
+			}
+		}
+        MessageBox.Alert(
+            "リセットしました",
+            function(){
+            }
+        );        
+	}
+}
+function showMessage(jankenNum){
+	const now = new Date();
+	let janken_time_from;
+	let janken_time_to;
+	if(jankenNum == 1){
+		janken_time_from = JANKEN_TIME1_FROM;
+		janken_time_to = JANKEN_TIME1_TO;
+	}
+	else if(jankenNum == 2){
+		janken_time_from = JANKEN_TIME2_FROM;
+		janken_time_to = JANKEN_TIME2_TO;
+	}
+	else if(jankenNum == 3){
+		janken_time_from = JANKEN_TIME3_FROM;
+		janken_time_to = JANKEN_TIME3_TO;
+	}
+	
+	if(now < janken_time_from || janken_time_to < now){
+		$('confirmOk').textContent = 'OK';
+		MessageBox.Alert(
+			"只今の時間はじゃんけんは実施できません",
+			function(){}
+		);
+	}
+	else{
+		let selectedFlg = false;
+		if(localStorage.getItem('jankenResult' + jankenNum)){
+			const result = JSON.parse(localStorage.getItem('jankenResult' + jankenNum));
+			if(result['selected']){
+				selectedFlg = true;
+			}
+		}
+		if(selectedFlg){
+            const jankenRadio = document.getElementsByName('janken' + jankenNum);
+            for(let i = 0;i < jankenRadio.length; i++){
+                jankenRadio[i].disabled = true;
+            }
+            MessageBox.Alert(
+				"選択後には変更出来ません",
+				function(){
+				}
+			);
+		}
+		else{
+			MessageBox.Confirm(
+			"このじゃんけんで決定しますか？", 
+			function(){
+				const jankenRadio = document.getElementsByName('janken' + jankenNum);
+				const result = {};
+				result['jankenTime'] = new Date();
+				for(let i = 0;i < jankenRadio.length; i++){
+					if(jankenRadio[i].checked){
+						result['selected'] = jankenRadio[i].value;
+						localStorage.setItem('jankenResult' + jankenNum, JSON.stringify(result));
+					}
+					jankenRadio[i].disabled = true;
+				}
+			},
+			function(){                
+                const jankenRadio = document.getElementsByName('janken' + jankenNum);
+				for(let i = 0;i < jankenRadio.length; i++){
+					jankenRadio[i].checked = false;
+				}
+            }
+			);
+		}
+	}
+}
+function countdownTimer(){
+	const now = new Date();
+	for(let i = 1; i <= 3; i++){
+		let janken_time_from;
+		let janken_time_to;
+		if(i == 1){
+			janken_time_from = JANKEN_TIME1_FROM;
+			janken_time_to = JANKEN_TIME1_TO;
+		}
+		else if(i == 2){
+			janken_time_from = JANKEN_TIME2_FROM;
+			janken_time_to = JANKEN_TIME2_TO;
+		}
+		else if(i == 3){
+			janken_time_from = JANKEN_TIME3_FROM;
+			janken_time_to = JANKEN_TIME3_TO;
+		}
+		
+		let insert = '';
+		let disabledFlg = true;
+		if(janken_time_from <= now && now <= janken_time_to){
+			let period = janken_time_to - now ;
+			const addZero = function(n){return('0'+n).slice(-2);}
+			const addZeroDay = function(n){return('0'+n).slice(-3);}
+			if(period >= 0) {
+				const day = Math.floor(period / (1000 * 60 * 60 * 24));
+				period -=  (day　*(1000 * 60 * 60 * 24));
+				const hour = Math.floor(period / (1000 * 60 * 60));
+				period -= (hour *(1000 * 60 * 60));
+				const minutes =  Math.floor(period / (1000 * 60));
+				period -= (minutes * (1000 * 60));
+				const second = Math.floor(period / 1000);
+				if(hour > 0) insert = '<span class="h">' + addZero(hour) + '時間'+'</span>';
+				if(minutes > 0) insert +=  '<span class="m">' + addZero(minutes) +'分' + '</span>';
+				insert += '<span class="s">' + addZero(second)+ '秒'+ '</span>';
+                insert = '選択終了まで残り' + insert;
+				disabledFlg = false;
+			
+			}
+			else{
+				insert = '選択終了まで残り --時間--分--秒';
+			}
+		}
+		else{
+			insert = '選択終了まで残り --時間--分--秒';			
+		}
+		$('timer' + i).innerHTML = insert;
+		const jankenRadio = document.getElementsByName('janken' + i);
+		for(let i = 0;i < jankenRadio.length; i++){
+			jankenRadio[i].disabled = disabledFlg;
+		}
+	}
+	setTimeout(countdownTimer, 10);
+}
+</script>
+</body>
+
+
+
+
+</html>
