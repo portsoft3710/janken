@@ -7,12 +7,39 @@ body{
 	margin: 20px  auto;
 	width: 96vw;
 }
+.point-wrapper{
+	display: flex;
+    height: 60px;
+}
+.point-wrapper div:first-of-type{
+	width: 28vw;
+	position: relative;
+}
+.point-wrapper div:first-of-type button{
+	width: 24vw;
+	height: 80%;
+	border-radius: 10px;
+	padding: 4px;
+	color: #fff;
+	background-color: coral;
+	position: absolute;
+	top: 50%;
+	left: 10px;
+	transform: translateY(-50%);
+}
+.point-wrapper div:last-of-type{
+	width: 76vw;
+}
+.point-wrapper div:last-of-type img{
+	width: 100%;
+	height: auto;
+}
 .point p {
 	font-weight: normal;
 	font-size: 1.1em;/*サイズ2倍*/
 	position: absolute;
-	top: 4.6%;
-	left: 58%;
+	top: 5%;
+	left: 65%;
  	width: 30%;
 	height: 1.5em;
 	line-height: 1.9em;
