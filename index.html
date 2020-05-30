@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta http-equiv="content-language" content="ja">
-<link rel="apple-touch-icon" href="image/icons/icon-152x152.png">
+<link rel="apple-touch-icon" href="images/icons/icon-152x152.png">
 <meta name="apple-mobile-web-app-title" content="じゃんけん">
 <title></title>
 <meta charset="UTF-8">
@@ -35,45 +35,45 @@ window.addEventListener('load', function() {
 <div id="top" style="background-color:  #66cdaa; padding-top: 5px; padding-bottom: 2px; width: 100%; text-align: center;">
 <div class="point-wrapper">
 	<div><button type="button">Point<br>交換</button></div>
-	<div><img src="image/002.png"></div>
+	<div><img src="images/002.png"></div>
 </div>
 <span class="point" style="position: static;">
 <p id="msg"></p></span>
 </div>
 
 <!--<div id="midashi1" style="margin-top:0px; width:100%; text-align:center">
-	<img src="./image/006.png" style="width:100%;">
+	<img src="./images/006.png" style="width:100%;">
 </div>-->
 <p style="text-align: center;">〜指定の時間内で選んでね！〜</p>
 <div class="wrapper">
 <div class="janken-wrapper">
 	<p>1回目チャレンジタイム（00:00～12:00）</p>
 	<div class="janken"><input type="radio" id="janken1-g" name="janken1">
-	<label for="janken1-g" onclick="showMessage('1')"><img src="image/gu.jpg"></label></div>
+	<label for="janken1-g" onclick="showMessage('1')"><img src="images/gu.jpg"></label></div>
 	<div class="janken"><input type="radio" id="janken1-c" name="janken1">
-	<label for="janken1-c" onclick="showMessage('1')"><img src="image/choki.jpg"></label></div>
+	<label for="janken1-c" onclick="showMessage('1')"><img src="images/choki.jpg"></label></div>
 	<div class="janken"><input type="radio" id="janken1-p" name="janken1">
-	<label for="janken1-p" onclick="showMessage('1')"><img src="image/pa.jpg"></label></div>
+	<label for="janken1-p" onclick="showMessage('1')"><img src="images/pa.jpg"></label></div>
 </div>
 <div class="timer" id="timer1"></div>
 <div class="janken-wrapper">
 	<p>2回目チャレンジタイム（12:00～18:00）</p>
 	<div class="janken"><input type="radio" id="janken2-g" name="janken2">
-	<label for="janken2-g" onclick="showMessage('2')"><img src="image/gu.jpg"></label></div>
+	<label for="janken2-g" onclick="showMessage('2')"><img src="images/gu.jpg"></label></div>
 	<div class="janken"><input type="radio" id="janken2-c" name="janken2">
-	<label for="janken2-c" onclick="showMessage('2')"><img src="image/choki.jpg"></label></div>
+	<label for="janken2-c" onclick="showMessage('2')"><img src="images/choki.jpg"></label></div>
 	<div class="janken"><input type="radio" id="janken2-p" name="janken2">
-	<label for="janken2-p" onclick="showMessage('2')"><img src="image/pa.jpg"></label></div>
+	<label for="janken2-p" onclick="showMessage('2')"><img src="images/pa.jpg"></label></div>
 </div>
 <div class="timer" id="timer2"></div>
 <div class="janken-wrapper">
 	<p>3回目チャレンジタイム（18:00～24:00）</p>
 	<div class="janken"><input type="radio" id="janken3-g" name="janken3">
-	<label for="janken3-g" onclick="showMessage('3')"><img src="image/gu.jpg"></label></div>
+	<label for="janken3-g" onclick="showMessage('3')"><img src="images/gu.jpg"></label></div>
 	<div class="janken"><input type="radio" id="janken3-c" name="janken3">
-	<label for="janken3-c" onclick="showMessage('3')"><img src="image/choki.jpg"></label></div>
+	<label for="janken3-c" onclick="showMessage('3')"><img src="images/choki.jpg"></label></div>
 	<div class="janken"><input type="radio" id="janken3-p" name="janken3">
-	<label for="janken3-p" onclick="showMessage('3')"><img src="image/pa.jpg"></label></div>
+	<label for="janken3-p" onclick="showMessage('3')"><img src="images/pa.jpg"></label></div>
 </div>
 <div class="timer" id="timer3"></div>
 
@@ -104,7 +104,7 @@ window.addEventListener('load', function() {
 
 var stampIds = '';
 
-var IMG_BASE_URL = './image/';
+var IMG_BASE_URL = './images/';
 
 var MAX_POINT = 200;
 var PREFIX = 'Gxh9Kas';
