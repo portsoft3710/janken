@@ -31,16 +31,17 @@ window.addEventListener('load', function() {
 <link href="https://fonts.googleapis.com/css?family=Kosugi+Maru" rel="stylesheet">
 
 <div id="top" style="background-color:  #66cdaa; padding-top: 5px; padding-bottom: 2px; width: 100%; text-align: center;">
+<div class="point-wrapper">
+	<div><button type="button">Point<br>交換</button></div>
+	<div><img src="image/002.png"></div>
+</div>
 <span class="point" style="position: static;">
 <p id="msg"></p></span>
-	<img src="image/001.png" width="17%;" onclick="pointPresent();">
-	<img src="image/002.png" width="60%;">
-	<img src="image/003.png" width="18.5%;">
 </div>
 
-<div id="midashi1" style="margin-top:0px; width:100%; text-align:center">
+<!--<div id="midashi1" style="margin-top:0px; width:100%; text-align:center">
 	<img src="./image/006.png" style="width:100%;">
-</div>
+</div>-->
 <p style="text-align: center;">〜指定の時間内で選んでね！〜</p>
 <div class="wrapper">
 <div class="janken-wrapper">
@@ -103,20 +104,11 @@ var stampIds = '';
 
 var IMG_BASE_URL = './image/';
 
-var imgMsg = new Array(new Image(), new Image());
-var INIT_ALL_STEP = 4;
-var initStep = 0;
-var dispStep = 0;
-
-var STATE_LOADING = 0;
-var STATE_INIT = 1;
-var STATE_WAIT = 2;
-var pageState = STATE_LOADING;
-//sendChgPoint('0000000001', -40, 'clear');
-var collectCount = 0;
-var collectCountLast = 0;
-
-
+var MAX_POINT = 200;
+var PREFIX = 'Gxh9Kas';
+var POINT_KEY = PREFIX + 'Key';
+var USER_POINT;
+	
 var POINT_WIN = 100;
 var POINT_DRAW = 10;
 var POINT_LOSE = 5;
@@ -129,46 +121,34 @@ RESULT_MESSAGE[POINT_LOSE] = '残念。。　負けました';
 
 //ジャンケンを選択できる時間(何時～何時まで)
 var JANKEN_TIME1_FROM = new Date(new Date().setHours(12, 0, 0));
-var JANKEN_TIME1_TO = new Date(new Date().setHours(13, 00, 0));
+var JANKEN_TIME1_TO = new Date(new Date().setHours(23, 59, 0));
 var JANKEN_TIME2_FROM = new Date(new Date().setHours(21, 0, 0));
-var JANKEN_TIME2_TO = new Date(new Date().setHours(21, 45, 0));
+var JANKEN_TIME2_TO = new Date(new Date().setHours(23, 45, 0));
 var JANKEN_TIME3_FROM = new Date(new Date().setHours(21, 0, 0));
-var JANKEN_TIME3_TO = new Date(new Date().setHours(23, 0, 0));
+var JANKEN_TIME3_TO = new Date(new Date().setHours(23, 59, 0));
 
-//１回目のトリガー認識期間
-var TIME1_FROM = new Date(new Date().setHours(00, 00, 0));
-var TIME1_TO = new Date(new Date().setHours(14, 00, 0));
+var JANKEN_G = 'JANKEN_G';
+var JANKEN_C = 'JANKEN_C';
+var JANKEN_P = 'JANKEN_P';
 
-//２回目のトリガー認識期間
-var TIME2_FROM = new Date(new Date().setHours(14, 01, 00));
-var TIME2_TO = new Date(new Date().setHours(18, 00, 00));
-
-//３回目のトリガー認識期間
-var TIME3_FROM = new Date(new Date().setHours(18, 01, 00));
-var TIME3_TO = new Date(new Date().setHours(23, 59, 0));
-
-//var JANKEN_G = '491tu0058';
-//var JANKEN_C = '491tu0059';
-//var JANKEN_P = '491tu0060';
-
-var JANKEN_G = '491tu0000';
-var JANKEN_C = '491tu0059';
-var JANKEN_P = '491tu0060';
+var JANKEN_TIME1 = {time: new Date(new Date().setHours(17, 25, 0)), hand: JANKEN_G};
+var JANKEN_TIME2 = {time: new Date(new Date().setHours(17, 30, 0)), hand: JANKEN_C};
+var JANKEN_TIME3 = {time: new Date(new Date().setHours(23, 40, 0)), hand: JANKEN_P};
 
 // =RESETがtrueの場合リセット→ RESET_TIME以前の時間に取得したトリガーは無効として扱う
 var RESET = true;
 var RESET_TIME = new Date(new Date().setHours(08, 00, 0));
-/*localStorage.removeItem('jankenResult1');
-localStorage.removeItem('jankenResult2');
-localStorage.removeItem('jankenResult3');*/
+/*localStorage.removeItem(PREFIX + 'jankenResult1');
+localStorage.removeItem(PREFIX + 'jankenResult2');
+localStorage.removeItem(PREFIX + 'jankenResult3');*/
+    
 function bodyOnload(){
-    localStorage.removeItem('pointChnage');
-    //sendChgPoint(operationId() , 100 , "test");
+    localStorage.removeItem(PREFIX + 'pointChnage');
 	if(RESET){
-		localStorage.setItem('jankenReset', RESET_TIME);
+		localStorage.setItem(PREFIX + 'jankenReset', RESET_TIME);
 		for(let i = 1; i <= 3; i++){
-			if(localStorage.getItem('jankenResult' + i)){
-				const result = JSON.parse(localStorage.getItem('jankenResult' + i));
+			if(localStorage.getItem(PREFIX + 'jankenResult' + i)){
+				const result = JSON.parse(localStorage.getItem(PREFIX + 'jankenResult' + i));
                 if(result['resultTime']){
                     if(new Date(result['resultTime']) < new Date(RESET_TIME)){
                         delete result['point'];
@@ -182,144 +162,83 @@ function bodyOnload(){
                        }
                     }
                 }
-                localStorage.setItem('jankenResult' + i, JSON.stringify(result));
+                localStorage.setItem(PREFIX + 'jankenResult' + i, JSON.stringify(result));
 			}
 		}
 	}
     init();
 	countdownTimer();
-	setMsgImage(0, IMG_BASE_URL + 'msg_frame.png');
-	setMsgImage(1, IMG_BASE_URL + 'msg_btn.png');
 }
-
-function triggerListRenew() {
-	if(pageState == STATE_LOADING){
-		pageState = STATE_INIT;
-		init();
-	}
-	else if(pageState == STATE_WAIT){
-		dispStep = 0;
-		collectCount = 0;
-		//redrawStamp();
-	}
-    redrawStamp();
-}
-
 function init() {
-	initStep++;
-	//初期処理完了
-	//if(initStep >= INIT_ALL_STEP){
-        /*const now = new Date();
-        // 指定時間外はじゃんけんを選択できない
-        if(now < JANKEN_TIME_FROM || JANKEN_TIME_TO < now){
-            for(let i = 1;i <= 3; i++){		
-                const jankenRadio = document.getElementsByName('janken' + i);
-                for(let j = 0;j < jankenRadio.length; j++){
-                    jankenRadio[j].disabled = true;
-                }		
-            }
-        }*/
+	const today00 = new Date(new Date().setHours(0, 0, 0, 0));
+	for(let i = 1; i <= 3; i++){
+		$('janken' + i + '-g').value = JANKEN_G;
+		$('janken' + i + '-c').value = JANKEN_C;
+		$('janken' + i + '-p').value = JANKEN_P;
 
-        const today00 = new Date(new Date().setHours(0, 0, 0, 0));
-        for(let i = 1; i <= 3; i++){
-            $('janken' + i + '-g').value = JANKEN_G;
-            $('janken' + i + '-c').value = JANKEN_C;
-            $('janken' + i + '-p').value = JANKEN_P;
-
-            if(localStorage.getItem('jankenResult' + i)){
-                const result = JSON.parse(localStorage.getItem('jankenResult' + i));
-                if(new Date(result['jankenTime']) < today00){
-                    localStorage.removeItem('jankenResult' + i);
-                }
-                else{
-                    const selectedJanken = result['selected'];
-                    const jankenRadio = document.getElementsByName('janken' + i);
-                    if(selectedJanken){
-                        for(let j = 0; j < jankenRadio.length; j++){
-                            jankenRadio[j].disabled = true;
-                            if(selectedJanken == jankenRadio[j].value){
-                                jankenRadio[j].checked = true;
-                            }
-                        }                        
-                    }
-                }
-            }
-        }
-		//redrawStamp();
-	//}
-}
-
-
-function redrawStamp(){
-    if(USER_TRIGGER_LIST != null){
-		//$log('最後の受信トリガー:' + USER_TRIGGER_LIST[USER_TRIGGER_LIST.length-1].id);
-		let lastTrigger = {};
-		const trigger = USER_TRIGGER_LIST[USER_TRIGGER_LIST.length-1];
-		const stampIds = trigger.id;
-		if(stampIds == JANKEN_G || stampIds == JANKEN_C || stampIds == JANKEN_P){
-			const getTime = trigger.gettime;
-			const getTimemm = new Date(getTime).getTime();
-			let resetTime = new Date(2000, 1, 1);
-			if(localStorage.getItem('jankenReset')){
-				resetTime = new Date(localStorage.getItem('jankenReset'));
+		if(localStorage.getItem(PREFIX + 'jankenResult' + i)){
+			const result = JSON.parse(localStorage.getItem(PREFIX + 'jankenResult' + i));
+			if(new Date(result['jankenTime']) < today00){
+				localStorage.removeItem(PREFIX + 'jankenResult' + i);
 			}
-			if(TIME1_FROM <= getTimemm && getTimemm < TIME1_TO && resetTime < getTimemm){
-				lastTrigger['janken1'] = trigger;
-			}
-			else if(TIME2_FROM <= getTimemm && getTimemm < TIME2_TO && resetTime < getTimemm){
-				lastTrigger['janken2'] = trigger;
-			}
-			else if(TIME3_FROM <= getTimemm && getTimemm < TIME3_TO && resetTime < getTimemm){
-				lastTrigger['janken3'] = trigger;
+			else{
+				const selectedJanken = result['selected'];
+				const jankenRadio = document.getElementsByName('janken' + i);
+				if(selectedJanken){
+					for(let j = 0; j < jankenRadio.length; j++){
+						jankenRadio[j].disabled = true;
+						if(selectedJanken == jankenRadio[j].value){
+							jankenRadio[j].checked = true;
+						}
+					}                        
+				}
 			}
 		}
-        /*for(let listIdx = 0; listIdx < USER_TRIGGER_LIST.length; listIdx++){
-			const stampIds = USER_TRIGGER_LIST[listIdx].id;
-			if(stampIds == JANKEN_G || stampIds == JANKEN_C || stampIds == JANKEN_P){
-				const getTime = USER_TRIGGER_LIST[listIdx].gettime;
-				const getTimemm = new Date(getTime).getTime();
-				let resetTime = new Date(2000, 1, 1);
-				if(localStorage.getItem('jankenReset')){
-					resetTime = new Date(localStorage.getItem('jankenReset'));
-				}
-				if(TIME1_FROM <= getTimemm && getTimemm < TIME1_TO && resetTime < getTimemm){
-    				lastTrigger['janken1'] = USER_TRIGGER_LIST[listIdx];
-				}
-				else if(TIME2_FROM <= getTimemm && getTimemm < TIME2_TO && resetTime < getTimemm){
-					lastTrigger['janken2'] = USER_TRIGGER_LIST[listIdx];
-				}
-				else if(TIME3_FROM <= getTimemm && getTimemm < TIME3_TO && resetTime < getTimemm){
-					lastTrigger['janken3'] = USER_TRIGGER_LIST[listIdx];
-				}
+	}
+	dispCurrentPoint(setMaxPoint);
+}
+
+
+function doJanken(jankenNum){
+	if(localStorage.getItem(PREFIX + 'jankenResult' + jankenNum)){
+		const result = JSON.parse(localStorage.getItem(PREFIX + 'jankenResult' + jankenNum));
+		if('point' in result == false){
+			result['point'] = checkJanken(jankenNum);
+			result['resultTime'] = new Date();
+			// ポイント付与
+			let curretPoint = 0;
+			if(localStorage.getItem(PREFIX + POINT_KEY)){
+				curretPoint = localStorage.getItem(PREFIX + POINT_KEY) * 1;
 			}
-		}*/
-		//if(lastTrigger['janken1'])$log('受信トリガー(じゃんけん1):' + lastTrigger['janken1'].id);
-		//if(lastTrigger['janken2'])$log('受信トリガー(じゃんけん2):' + lastTrigger['janken2'].id);
-		//if(lastTrigger['janken3'])$log('受信トリガー(じゃんけん3):' + lastTrigger['janken3'].id);
-		for(let i = 1; i <= 3; i++){
-			if(localStorage.getItem('jankenResult' + i)){
-				const result = JSON.parse(localStorage.getItem('jankenResult' + i));
-				if(!result['point'] && lastTrigger['janken' + i]){
-					result['point'] = checkJanken('janken' + i, lastTrigger['janken' + i].id);
-                    result['resultTime'] = new Date();
-					// ポイント付与
-					sendChgPoint(operationId(), result['point'] , "じゃんけん");
-					localStorage.setItem('jankenResult' + i, JSON.stringify(result));
-                    MessageBox.Alert(
-                        RESULT_MESSAGE[result['point']] + '<br>' + result['point'] + 'ポイント獲得しました。',
-                    function(){
+			curretPoint+= result['point'] * 1;
+			localStorage.setItem(PREFIX + 'jankenResult' + jankenNum, JSON.stringify(result));
+			MessageBox.Alert(
+				RESULT_MESSAGE[result['point']] + '<br>' + result['point'] + 'ポイント獲得しました。',
+				function(){
 				}
 			);
-
-				}
-			}
 		}
 	}
-    pageState = STATE_WAIT;
+	else{
+		const result = {};
+		result['point'] = 0;
+		result['resultTime'] = new Date();
+		localStorage.setItem(PREFIX + 'jankenResult' + jankenNum, JSON.stringify(result));
+	}
 }
 
-function checkJanken(jankenName, triggerId){
-	const jankenRadio = document.getElementsByName(jankenName);
+function checkJanken(jankenNum){
+	let janken_hand;
+	if(jankenNum == 1){
+		janken_hand = JANKEN_TIME1['hand'];
+	}
+	else if(jankenNum == 2){
+		janken_hand = JANKEN_TIME2['hand'];
+	}
+	else if(jankenNum == 3){
+		janken_hand = JANKEN_TIME3['hand'];
+	}
+	const jankenRadio = document.getElementsByName('janken' + jankenNum);
 	let selectedJanken;
 	let point;
 	for(let i = 0;i < jankenRadio.length; i++){
@@ -331,32 +250,30 @@ function checkJanken(jankenName, triggerId){
 		point = POINT_LOSE;
 	}
 	else{
-		if(selectedJanken == triggerId){
+		if(selectedJanken == janken_hand){
 			point = POINT_DRAW;
 		}
 		else{
-			if(selectedJanken == JANKEN_G && triggerId == JANKEN_C){
+			if(selectedJanken == JANKEN_G && janken_hand == JANKEN_C){
 				point = POINT_WIN;
 			}
-			else if(selectedJanken == JANKEN_G && triggerId == JANKEN_P){
+			else if(selectedJanken == JANKEN_G && janken_hand == JANKEN_P){
 				point = POINT_LOSE;
 			}
-			else if(selectedJanken == JANKEN_C && triggerId == JANKEN_G){
+			else if(selectedJanken == JANKEN_C && janken_hand == JANKEN_G){
 				point = POINT_LOSE;
 			}
-			else if(selectedJanken == JANKEN_C && triggerId == JANKEN_P){
+			else if(selectedJanken == JANKEN_C && janken_hand == JANKEN_P){
 				point = POINT_WIN;
 			}
-			else if(selectedJanken == JANKEN_P && triggerId == JANKEN_G){
+			else if(selectedJanken == JANKEN_P && janken_hand == JANKEN_G){
 				point = POINT_WIN;
 			}
-			else if(selectedJanken == JANKEN_P && triggerId == JANKEN_C){
+			else if(selectedJanken == JANKEN_P && janken_hand == JANKEN_C){
 				point = POINT_LOSE;
 			}
 		}
 	}
-	//$log('じゃんけんID：' + selectedJanken);
-	//$log('トリガーID' + triggerId);
 	return point;
 }
 function operationId(){
@@ -371,6 +288,14 @@ function operationId(){
 	//var str_today = yyyy + mm + dd + hh;
 	return str_today;
 }
+function pointUse(point){
+	let currentPoint = 0;
+	if(localStorage.getItem(PREFIX + POINT_KEY)){
+		currentPoint = localStorage.getItem(PREFIX + POINT_KEY) * 1;
+	}
+	currentPoint+=point;
+	dispCurrentPoint(setMaxPoint);
+}
 function pointPresent(){
 	//setTitleID("mtp491sd");
 	if(USER_POINT >= CHANGE_POINT){
@@ -378,7 +303,7 @@ function pointPresent(){
 			"特典と本当に交換しますか？<br>（OKの場合はスタッフに見せながら）",
 			function(){
                 setTitleID("mtp491tu");
-                localStorage.setItem('pointChange', new Date());
+                localStorage.setItem(PREFIX + 'pointChange', new Date());
                 if(sendChgPoint(operationId() , CHANGE_POINT * -1 , "javaScriptからの" + CHANGE_POINT + "ポイント減")){
                     console.log("成功");
                 }
@@ -393,45 +318,25 @@ function pointPresent(){
 			}
         );
     }
-}    
-    
+}
+
 function dispCurrentPoint(callback){
 
-	if(USER_POINT != null){
-		document.getElementById('msg').innerHTML = USER_POINT + ' point';
+	if(localStorage.getItem(PREFIX + POINT_KEY)){
+		document.getElementById('msg').innerHTML = localStorage.getItem(PREFIX + POINT_KEY) + ' point';
 	}
 	else{
 		document.getElementById('msg').innerHTML = '0 point';
 	}
-    var userPoint;
     setTimeout(function(){
-        userPoint = USER_POINT;
-        callback(userPoint);
+        callback();
     }, 1000);
 }
-
-
-
-function setMsgImage(idx, path){
-	imgMsg[idx] = new Image();
-	imgMsg[idx].src = srcUrl(path);
-	imgMsg[idx].onload = function() {init();};
-}
-function pointUseResult(result, usePoint, currentPoint){
-    USER_POINT = currentPoint;
-    //alert(USER_POINT);
-    if(USER_POINT != null){
-		document.getElementById('msg').innerHTML = USER_POINT + ' point';
+function setMaxPoint(){
+	if(localStorage.getItem(PREFIX + POINT_KEY) && localStorage.getItem(PREFIX + POINT_KEY) * 1 > MAX_POINT){
+		localStorage.setItem(PREFIX + POINT_KEY, MAX_POINT);
 	}
-	else{
-		document.getElementById('msg').innerHTML = '0 point';
-	}
-    if(usePoint == CHANGE_POINT * -1 && localStorage['pointChange']){
-        window.location.href = "kokan_thankyou.html";
-   }
 }
-
-function moveDigit(num){return (num <= 9 ? '0' : '') + num.toString();}
 function $(id){return document.getElementById(id);}
 function $S(id){return $(id).style;}
 function $V(id){$S(id).visibility = 'visible';}
@@ -455,10 +360,10 @@ function reset(){
 	const resetValue = $('resetTime').value;
 	if(resetValue !== ''){
 		const resetTime = new Date(new Date().setHours(resetValue.split(':')[0] * 1, resetValue.split(':')[1] * 1, 0, 0));
-		localStorage.setItem('jankenReset', resetTime);
+		localStorage.setItem(PREFIX + 'jankenReset', resetTime);
 		for(let i = 1; i <= 3; i++){
-			if(localStorage.getItem('jankenResult' + i)){
-				localStorage.removeItem('jankenResult' + i);
+			if(localStorage.getItem(PREFIX + 'jankenResult' + i)){
+				localStorage.removeItem(PREFIX + 'jankenResult' + i);
 			}
 		}
         MessageBox.Alert(
@@ -472,17 +377,21 @@ function showMessage(jankenNum){
 	const now = new Date();
 	let janken_time_from;
 	let janken_time_to;
+    let janken_time;
 	if(jankenNum == 1){
 		janken_time_from = JANKEN_TIME1_FROM;
 		janken_time_to = JANKEN_TIME1_TO;
+        janken_time = JANKEN_TIME1;
 	}
 	else if(jankenNum == 2){
 		janken_time_from = JANKEN_TIME2_FROM;
 		janken_time_to = JANKEN_TIME2_TO;
+        janken_time = JANKEN_TIME2;
 	}
 	else if(jankenNum == 3){
 		janken_time_from = JANKEN_TIME3_FROM;
 		janken_time_to = JANKEN_TIME3_TO;
+        janken_time = JANKEN_TIME3;
 	}
 	
 	if(now < janken_time_from || janken_time_to < now){
@@ -494,8 +403,8 @@ function showMessage(jankenNum){
 	}
 	else{
 		let selectedFlg = false;
-		if(localStorage.getItem('jankenResult' + jankenNum)){
-			const result = JSON.parse(localStorage.getItem('jankenResult' + jankenNum));
+		if(localStorage.getItem(PREFIX + 'jankenResult' + jankenNum)){
+			const result = JSON.parse(localStorage.getItem(PREFIX + 'jankenResult' + jankenNum));
 			if(result['selected']){
 				selectedFlg = true;
 			}
@@ -512,16 +421,35 @@ function showMessage(jankenNum){
 			);
 		}
 		else{
+            if(janken_time['time'] < now){
+                MessageBox.Alert(
+                    "じゃんけんの時間が過ぎています",
+                    function(){
+                        const jankenRadio = document.getElementsByName('janken' + jankenNum);
+                        for(let i = 0;i < jankenRadio.length; i++){
+                            jankenRadio[i].checked = false;
+                            jankenRadio[i].disabled = true;
+                        }
+                    }
+                );
+            }
+            else{
 			MessageBox.Confirm(
 			"このじゃんけんで決定しますか？", 
 			function(){
 				const jankenRadio = document.getElementsByName('janken' + jankenNum);
-				const result = {};
+                let result;
+                if(localStorage.getItem(PREFIX + 'jankenResult' + jankenNum)){
+                    result = JSON.parse(localStorage.getItem(PREFIX + 'jankenResult' + jankenNum));
+                }
+                else{
+                    result = {};
+                }
 				result['jankenTime'] = new Date();
 				for(let i = 0;i < jankenRadio.length; i++){
 					if(jankenRadio[i].checked){
 						result['selected'] = jankenRadio[i].value;
-						localStorage.setItem('jankenResult' + jankenNum, JSON.stringify(result));
+						localStorage.setItem(PREFIX + 'jankenResult' + jankenNum, JSON.stringify(result));
 					}
 					jankenRadio[i].disabled = true;
 				}
@@ -532,7 +460,8 @@ function showMessage(jankenNum){
 					jankenRadio[i].checked = false;
 				}
             }
-			);
+			);                
+            }
 		}
 	}
 }
@@ -541,17 +470,21 @@ function countdownTimer(){
 	for(let i = 1; i <= 3; i++){
 		let janken_time_from;
 		let janken_time_to;
+		let janken_time;
 		if(i == 1){
 			janken_time_from = JANKEN_TIME1_FROM;
 			janken_time_to = JANKEN_TIME1_TO;
+			janken_time = JANKEN_TIME1;
 		}
 		else if(i == 2){
 			janken_time_from = JANKEN_TIME2_FROM;
 			janken_time_to = JANKEN_TIME2_TO;
+			janken_time = JANKEN_TIME2;
 		}
 		else if(i == 3){
 			janken_time_from = JANKEN_TIME3_FROM;
 			janken_time_to = JANKEN_TIME3_TO;
+			janken_time = JANKEN_TIME3;
 		}
 		
 		let insert = '';
@@ -587,13 +520,12 @@ function countdownTimer(){
 		for(let i = 0;i < jankenRadio.length; i++){
 			jankenRadio[i].disabled = disabledFlg;
 		}
+		if(janken_time['time'] <= now){
+			doJanken(i);
+		}
 	}
 	setTimeout(countdownTimer, 10);
 }
 </script>
 </body>
-
-
-
-
 </html>
