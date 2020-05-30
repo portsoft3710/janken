@@ -1,6 +1,6 @@
 {
-  "name": "janken",
-  "short_name": "janken",
+  "name": "じゃんけん",
+  "short_name": "じゃんけん",
   "theme_color": "#2196f3",
   "background_color": "#2196f3",
   "start_url": "./?utm_source=homescreen",
