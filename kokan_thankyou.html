@@ -45,10 +45,15 @@ div{
 
 </style>
 <script>
-	if (localStorage.getItem('agcStampReset_8888_tmp') !== null) {
-		localStorage.setItem('agcStampReset_8888', localStorage.getItem('agcStampReset_8888_tmp'));
-		removeItem.removeItem('agcStampReset_8888_tmp');
+var PREFIX = 'Gxh9Kas';
+var POINT_KEY = PREFIX + 'Key';
+var CHANGE_POINT = 100;
+    let currentPoint = 0;
+	if(localStorage.getItem(PREFIX + POINT_KEY)){
+		currentPoint = localStorage.getItem(PREFIX + POINT_KEY) * 1;
 	}
+    currentPoint -= CHANGE_POINT;
+    localStorage.setItem(PREFIX + POINT_KEY, currentPoint);
 </script>
 </head>
 
