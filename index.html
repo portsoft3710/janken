@@ -34,7 +34,7 @@ window.addEventListener('load', function() {
 
 <div id="top" style="background-color:  #66cdaa; padding-top: 5px; padding-bottom: 2px; width: 100%; text-align: center;">
 <div class="point-wrapper">
-	<div><button type="button">Point<br>交換</button></div>
+	<div><button type="button" onclick="pointPresent();">Point<br>交換</button></div>
 	<div><img src="images/002.png"></div>
 </div>
 <span class="point" style="position: static;">
@@ -122,24 +122,24 @@ RESULT_MESSAGE[POINT_DRAW] = 'あいこでした。。';
 RESULT_MESSAGE[POINT_LOSE] = '残念。。　負けました';
 
 //ジャンケンを選択できる時間(何時～何時まで)
-var JANKEN_TIME1_FROM = new Date(new Date().setHours(12, 0, 0));
+var JANKEN_TIME1_FROM = new Date(new Date().setHours(0, 0, 0));
 var JANKEN_TIME1_TO = new Date(new Date().setHours(23, 59, 0));
-var JANKEN_TIME2_FROM = new Date(new Date().setHours(21, 0, 0));
+var JANKEN_TIME2_FROM = new Date(new Date().setHours(9, 0, 0));
 var JANKEN_TIME2_TO = new Date(new Date().setHours(23, 45, 0));
-var JANKEN_TIME3_FROM = new Date(new Date().setHours(21, 0, 0));
+var JANKEN_TIME3_FROM = new Date(new Date().setHours(9, 0, 0));
 var JANKEN_TIME3_TO = new Date(new Date().setHours(23, 59, 0));
 
 var JANKEN_G = 'JANKEN_G';
 var JANKEN_C = 'JANKEN_C';
 var JANKEN_P = 'JANKEN_P';
 
-var JANKEN_TIME1 = {time: new Date(new Date().setHours(17, 25, 0)), hand: JANKEN_G};
-var JANKEN_TIME2 = {time: new Date(new Date().setHours(17, 30, 0)), hand: JANKEN_C};
-var JANKEN_TIME3 = {time: new Date(new Date().setHours(23, 40, 0)), hand: JANKEN_P};
+var JANKEN_TIME1 = {time: new Date(new Date().setHours(10, 0, 0)), hand: JANKEN_G};
+var JANKEN_TIME2 = {time: new Date(new Date().setHours(12, 0, 0)), hand: JANKEN_C};
+var JANKEN_TIME3 = {time: new Date(new Date().setHours(13, 0, 0)), hand: JANKEN_P};
 
 // =RESETがtrueの場合リセット→ RESET_TIME以前の時間に取得したトリガーは無効として扱う
 var RESET = true;
-var RESET_TIME = new Date(new Date().setHours(08, 00, 0));
+var RESET_TIME = new Date(new Date().setHours(10, 17, 0));
 /*localStorage.removeItem(PREFIX + 'jankenResult1');
 localStorage.removeItem(PREFIX + 'jankenResult2');
 localStorage.removeItem(PREFIX + 'jankenResult3');*/
@@ -214,6 +214,8 @@ function doJanken(jankenNum){
 			}
 			curretPoint+= result['point'] * 1;
 			localStorage.setItem(PREFIX + 'jankenResult' + jankenNum, JSON.stringify(result));
+            localStorage.setItem(PREFIX + POINT_KEY, curretPoint);
+            pointUse(curretPoint);
 			MessageBox.Alert(
 				RESULT_MESSAGE[result['point']] + '<br>' + result['point'] + 'ポイント獲得しました。',
 				function(){
@@ -300,15 +302,15 @@ function pointUse(point){
 }
 function pointPresent(){
 	//setTitleID("mtp491sd");
-	if(USER_POINT >= CHANGE_POINT){
+    let currentPoint = 0;
+	if(localStorage.getItem(PREFIX + POINT_KEY)){
+		currentPoint = localStorage.getItem(PREFIX + POINT_KEY) * 1;
+	}    
+	if(currentPoint >= CHANGE_POINT){
 		MessageBox.Confirm(
 			"特典と本当に交換しますか？<br>（OKの場合はスタッフに見せながら）",
 			function(){
-                setTitleID("mtp491tu");
-                localStorage.setItem(PREFIX + 'pointChange', new Date());
-                if(sendChgPoint(operationId() , CHANGE_POINT * -1 , "javaScriptからの" + CHANGE_POINT + "ポイント減")){
-                    console.log("成功");
-                }
+                location.href='ok.html';
 			},
 			function(){}
 		);
@@ -337,6 +339,12 @@ function dispCurrentPoint(callback){
 function setMaxPoint(){
 	if(localStorage.getItem(PREFIX + POINT_KEY) && localStorage.getItem(PREFIX + POINT_KEY) * 1 > MAX_POINT){
 		localStorage.setItem(PREFIX + POINT_KEY, MAX_POINT);
+	}
+	if(localStorage.getItem(PREFIX + POINT_KEY)){
+		document.getElementById('msg').innerHTML = localStorage.getItem(PREFIX + POINT_KEY) + ' point';
+	}
+	else{
+		document.getElementById('msg').innerHTML = '0 point';
 	}
 }
 function $(id){return document.getElementById(id);}
