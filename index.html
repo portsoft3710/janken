@@ -125,9 +125,9 @@ var JANKEN_G = 'JANKEN_G'
 var JANKEN_C = 'JANKEN_C';
 var JANKEN_P = 'JANKEN_P';
 
-var JANKEN_TIME1 = {time: new Date(new Date().setHours(23, 5, 0)), hand: JANKEN_G};
-var JANKEN_TIME2 = {time: new Date(new Date().setHours(23, 6, 0)), hand: JANKEN_C};
-var JANKEN_TIME3 = {time: new Date(new Date().setHours(23, 7, 0)), hand: JANKEN_P};
+var JANKEN_TIME1 = {time: new Date(new Date().setHours(23, 57, 0)), hand: JANKEN_G};
+var JANKEN_TIME2 = {time: new Date(new Date().setHours(23, 58, 0)), hand: JANKEN_C};
+var JANKEN_TIME3 = {time: new Date(new Date().setHours(23, 59, 0)), hand: JANKEN_P};
 
 // RESETがtrueの場合リセット→ RESET_TIME以前の時間に取得したトリガーは無効として扱う
 var RESET = true;
@@ -146,10 +146,10 @@ db.version(1).stores({
 		{storageKey: POINT_KEY, storageValue: 99}]);
 */
 const data = db.storage.toArray().then(function(storage){
-	    alert(storage.length);
-
+    alert(storage.length);
 	for(let data of storage){
 		if(data.storageValue){
+            
 			localStorage.setItem(data.storageKey, data.storageValue);
 		}
 	}
