@@ -29,53 +29,54 @@ window.addEventListener('load', function() {
 </script>
 </head>
 
-<body onload="bodyOnload();" style="background-color:#fff;">
+<body style="background-color:#fff;">
 <link href="https://fonts.googleapis.com/css?family=Kosugi+Maru" rel="stylesheet">
 
 <div id="top" style="background-color:  #66cdaa; padding-top: 5px; padding-bottom: 2px; width: 100%; text-align: center;">
 <div class="point-wrapper">
-	<div><button type="button" onclick="pointPresent();">Point<br>交換</button></div>
+	<div><button type="button" onclick="pointPresent();">Point<br>応募</button></div>
 	<div><img src="images/002.png"></div>
 </div>
 <span class="point" style="position: static;">
 <p id="msg"></p></span>
+<p style="margin: 0px; font-size: 13px;">100ポイントたまる毎に応募できます</p>
 </div>
 
 <!--<div id="midashi1" style="margin-top:0px; width:100%; text-align:center">
 	<img src="./images/006.png" style="width:100%;">
 </div>-->
-<p style="text-align: center;">〜指定の時間内で選んでね！〜</p>
+<p style="text-align: center;">〜カウントダウンの時間内で選んでね！〜</p>
 <div class="wrapper">
 <div class="janken-wrapper">
-	<p>1回目チャレンジタイム（00:00～12:00）</p>
+	<p>1回目チャレンジタイム（12:00ごろ）</p>
 	<div class="janken"><input type="radio" id="janken1-g" name="janken1">
-	<label for="janken1-g" onclick="showMessage('1')"><img src="images/gu.jpg"></label></div>
+	<label for="janken1-g" onclick="showMessage('1')"><img src="images/gu.png"></label></div>
 	<div class="janken"><input type="radio" id="janken1-c" name="janken1">
-	<label for="janken1-c" onclick="showMessage('1')"><img src="images/choki.jpg"></label></div>
+	<label for="janken1-c" onclick="showMessage('1')"><img src="images/choki.png"></label></div>
 	<div class="janken"><input type="radio" id="janken1-p" name="janken1">
-	<label for="janken1-p" onclick="showMessage('1')"><img src="images/pa.jpg"></label></div>
+	<label for="janken1-p" onclick="showMessage('1')"><img src="images/pa.png"></label></div>
 </div>
-<div class="timer" id="timer1"></div>
+<div class="timer" id="timer1" style="text-align: center; margin-top: 0px;"></div>
 <div class="janken-wrapper">
-	<p>2回目チャレンジタイム（12:00～18:00）</p>
+	<p>2回目チャレンジタイム（18:00ごろ）</p>
 	<div class="janken"><input type="radio" id="janken2-g" name="janken2">
-	<label for="janken2-g" onclick="showMessage('2')"><img src="images/gu.jpg"></label></div>
+	<label for="janken2-g" onclick="showMessage('2')"><img src="images/gu.png"></label></div>
 	<div class="janken"><input type="radio" id="janken2-c" name="janken2">
-	<label for="janken2-c" onclick="showMessage('2')"><img src="images/choki.jpg"></label></div>
+	<label for="janken2-c" onclick="showMessage('2')"><img src="images/choki.png"></label></div>
 	<div class="janken"><input type="radio" id="janken2-p" name="janken2">
-	<label for="janken2-p" onclick="showMessage('2')"><img src="images/pa.jpg"></label></div>
+	<label for="janken2-p" onclick="showMessage('2')"><img src="images/pa.png"></label></div>
 </div>
-<div class="timer" id="timer2"></div>
+<div class="timer" id="timer2" style="text-align: center; margin-top: 0px;"></div>
 <div class="janken-wrapper">
-	<p>3回目チャレンジタイム（18:00～24:00）</p>
+	<p>3回目チャレンジタイム（23:00ごろ）</p>
 	<div class="janken"><input type="radio" id="janken3-g" name="janken3">
-	<label for="janken3-g" onclick="showMessage('3')"><img src="images/gu.jpg"></label></div>
+	<label for="janken3-g" onclick="showMessage('3')"><img src="images/gu.png"></label></div>
 	<div class="janken"><input type="radio" id="janken3-c" name="janken3">
-	<label for="janken3-c" onclick="showMessage('3')"><img src="images/choki.jpg"></label></div>
+	<label for="janken3-c" onclick="showMessage('3')"><img src="images/choki.png"></label></div>
 	<div class="janken"><input type="radio" id="janken3-p" name="janken3">
-	<label for="janken3-p" onclick="showMessage('3')"><img src="images/pa.jpg"></label></div>
+	<label for="janken3-p" onclick="showMessage('3')"><img src="images/pa.png"></label></div>
 </div>
-<div class="timer" id="timer3"></div>
+<div class="timer" id="timer3"  style="text-align: center; margin-top: 0px;"></div>
 
 <!--<div id="howto">
 	<a href="howto.html">使い方</a>
@@ -100,15 +101,14 @@ window.addEventListener('load', function() {
 		<button id="confirmCancel" style="display: inline;">キャンセル</button>
 	</div>
 </div>
+<script src="https://npmcdn.com/dexie@latest/dist/dexie.js"></script>
 <script type="text/javascript">
-
 var stampIds = '';
 
 var IMG_BASE_URL = './images/';
 
 var MAX_POINT = 200;
-var PREFIX = 'Gxh9Kas';
-var POINT_KEY = PREFIX + 'Key';
+var POINT_KEY = 'jankenPoint';
 var USER_POINT;
 	
 var POINT_WIN = 100;
@@ -123,33 +123,51 @@ RESULT_MESSAGE[POINT_LOSE] = '残念。。　負けました';
 
 //ジャンケンを選択できる時間(何時～何時まで)
 var JANKEN_TIME1_FROM = new Date(new Date().setHours(0, 0, 0));
-var JANKEN_TIME1_TO = new Date(new Date().setHours(23, 59, 0));
-var JANKEN_TIME2_FROM = new Date(new Date().setHours(9, 0, 0));
-var JANKEN_TIME2_TO = new Date(new Date().setHours(23, 59, 0));
-var JANKEN_TIME3_FROM = new Date(new Date().setHours(9, 0, 0));
-var JANKEN_TIME3_TO = new Date(new Date().setHours(23, 59, 0));
+var JANKEN_TIME1_TO = new Date(new Date().setHours(12, 00, 0));
+var JANKEN_TIME2_FROM = new Date(new Date().setHours(12, 00, 01));
+var JANKEN_TIME2_TO = new Date(new Date().setHours(18, 00, 0));
+var JANKEN_TIME3_FROM = new Date(new Date().setHours(18, 00, 01));
+var JANKEN_TIME3_TO = new Date(new Date().setHours(23, 00, 0));
 
 var JANKEN_G = 'JANKEN_G';
 var JANKEN_C = 'JANKEN_C';
 var JANKEN_P = 'JANKEN_P';
 
-var JANKEN_TIME1 = {time: new Date(new Date().setHours(22, 40, 0)), hand: JANKEN_G};
-var JANKEN_TIME2 = {time: new Date(new Date().setHours(22, 50, 0)), hand: JANKEN_C};
-var JANKEN_TIME3 = {time: new Date(new Date().setHours(23, 0, 0)), hand: JANKEN_P};
+var JANKEN_TIME1 = {time: new Date(new Date().setHours(12, 00, 03)), hand: JANKEN_G};
+var JANKEN_TIME2 = {time: new Date(new Date().setHours(18, 00, 03)), hand: JANKEN_C};
+var JANKEN_TIME3 = {time: new Date(new Date().setHours(23, 00, 03)), hand: JANKEN_P};
 
-// =RESETがtrueの場合リセット→ RESET_TIME以前の時間に取得したトリガーは無効として扱う
+// RESETがtrueの場合リセット→ RESET_TIME以前の時間に取得したトリガーは無効として扱う
 var RESET = true;
-var RESET_TIME = new Date(new Date().setHours(10, 10, 0));
-/*localStorage.removeItem(PREFIX + 'jankenResult1');
-localStorage.removeItem(PREFIX + 'jankenResult2');
-localStorage.removeItem(PREFIX + 'jankenResult3');*/
+var RESET_TIME = new Date(new Date().setHours(10, 17, 0));
+	
+//storageInit();
+var db = new Dexie("jankenDB");
+db.version(1).stores({
+    storage: "storageKey, storageValue"
+});
+/*db.storage.bulkPut([
+		{storageKey: "jankenReset"},
+		{storageKey: "jankenResult1"},
+		{storageKey: "jankenResult2"},
+		{storageKey: "jankenResult3"},
+		{storageKey: POINT_KEY, storageValue: 99}]);
+*/
+const data = db.storage.toArray().then(function(storage){
+	for(let data of storage){
+		if(data.storageValue){
+			localStorage.setItem(data.storageKey, data.storageValue);
+		}
+	}
+	bodyOnload();
+});
 function bodyOnload(){
-    localStorage.removeItem(PREFIX + 'pointChnage');
+    localStorage.removeItem('pointChnage');
 	if(RESET){
-		localStorage.setItem(PREFIX + 'jankenReset', RESET_TIME);
+		localStorage.setItem('jankenReset', RESET_TIME);
 		for(let i = 1; i <= 3; i++){
-			if(localStorage.getItem(PREFIX + 'jankenResult' + i)){
-				const result = JSON.parse(localStorage.getItem(PREFIX + 'jankenResult' + i));
+			if(localStorage.getItem('jankenResult' + i)){
+				const result = JSON.parse(localStorage.getItem('jankenResult' + i));
                 if(result['resultTime']){
                     if(new Date(result['resultTime']) < new Date(RESET_TIME)){
                         delete result['point'];
@@ -163,7 +181,7 @@ function bodyOnload(){
                        }
                     }
                 }
-                localStorage.setItem(PREFIX + 'jankenResult' + i, JSON.stringify(result));
+                localStorage.setItem('jankenResult' + i, JSON.stringify(result));
 			}
 		}
 	}
@@ -177,10 +195,10 @@ function init() {
 		$('janken' + i + '-c').value = JANKEN_C;
 		$('janken' + i + '-p').value = JANKEN_P;
 
-		if(localStorage.getItem(PREFIX + 'jankenResult' + i)){
-			const result = JSON.parse(localStorage.getItem(PREFIX + 'jankenResult' + i));
+		if(localStorage.getItem('jankenResult' + i)){
+			const result = JSON.parse(localStorage.getItem('jankenResult' + i));
 			if(new Date(result['jankenTime']) < today00){
-				localStorage.removeItem(PREFIX + 'jankenResult' + i);
+				localStorage.removeItem('jankenResult' + i);
 			}
 			else{
 				const selectedJanken = result['selected'];
@@ -201,19 +219,19 @@ function init() {
 
 
 function doJanken(jankenNum){
-	if(localStorage.getItem(PREFIX + 'jankenResult' + jankenNum)){
-		const result = JSON.parse(localStorage.getItem(PREFIX + 'jankenResult' + jankenNum));
+	if(localStorage.getItem('jankenResult' + jankenNum)){
+		const result = JSON.parse(localStorage.getItem('jankenResult' + jankenNum));
 		if('point' in result == false){
 			result['point'] = checkJanken(jankenNum);
 			result['resultTime'] = new Date();
 			// ポイント付与
 			let curretPoint = 0;
-			if(localStorage.getItem(PREFIX + POINT_KEY)){
-				curretPoint = localStorage.getItem(PREFIX + POINT_KEY) * 1;
+			if(localStorage.getItem(POINT_KEY)){
+				curretPoint = localStorage.getItem(POINT_KEY) * 1;
 			}
 			curretPoint+= result['point'] * 1;
-			localStorage.setItem(PREFIX + 'jankenResult' + jankenNum, JSON.stringify(result));
-            localStorage.setItem(PREFIX + POINT_KEY, curretPoint);
+			localStorage.setItem('jankenResult' + jankenNum, JSON.stringify(result));
+            localStorage.setItem(POINT_KEY, curretPoint);
             pointUse(curretPoint);
 			MessageBox.Alert(
 				RESULT_MESSAGE[result['point']] + '<br>' + result['point'] + 'ポイント獲得しました。',
@@ -226,7 +244,7 @@ function doJanken(jankenNum){
 		const result = {};
 		result['point'] = 0;
 		result['resultTime'] = new Date();
-		localStorage.setItem(PREFIX + 'jankenResult' + jankenNum, JSON.stringify(result));
+		localStorage.setItem('jankenResult' + jankenNum, JSON.stringify(result));
 	}
 }
 
@@ -281,16 +299,16 @@ function checkJanken(jankenNum){
 }
 function pointUse(point){
 	let currentPoint = 0;
-	if(localStorage.getItem(PREFIX + POINT_KEY)){
-		currentPoint = localStorage.getItem(PREFIX + POINT_KEY) * 1;
+	if(localStorage.getItem(POINT_KEY)){
+		currentPoint = localStorage.getItem(POINT_KEY) * 1;
 	}
 	currentPoint+=point;
 	dispCurrentPoint();
 }
 function pointPresent(){
     let currentPoint = 0;
-	if(localStorage.getItem(PREFIX + POINT_KEY)){
-		currentPoint = localStorage.getItem(PREFIX + POINT_KEY) * 1;
+	if(localStorage.getItem(POINT_KEY)){
+		currentPoint = localStorage.getItem(POINT_KEY) * 1;
 	}    
 	if(currentPoint >= CHANGE_POINT){
 		MessageBox.Confirm(
@@ -312,11 +330,12 @@ function pointPresent(){
 
 function dispCurrentPoint(){
 
-	if(localStorage.getItem(PREFIX + POINT_KEY) && localStorage.getItem(PREFIX + POINT_KEY) * 1 > MAX_POINT){
-		localStorage.setItem(PREFIX + POINT_KEY, MAX_POINT);
+	if(localStorage.getItem(POINT_KEY) && localStorage.getItem(POINT_KEY) * 1 > MAX_POINT){
+		db.put({storageKey: POINT_KEY, storageValue: MAX_POINT});
+		localStorage.setItem(POINT_KEY, MAX_POINT);
 	}
-	if(localStorage.getItem(PREFIX + POINT_KEY)){
-		document.getElementById('msg').innerHTML = localStorage.getItem(PREFIX + POINT_KEY) + ' point';
+	if(localStorage.getItem(POINT_KEY)){
+		document.getElementById('msg').innerHTML = localStorage.getItem(POINT_KEY) + ' point';
 	}
 	else{
 		document.getElementById('msg').innerHTML = '0 point';
@@ -346,10 +365,10 @@ function reset(){
 	const resetValue = $('resetTime').value;
 	if(resetValue !== ''){
 		const resetTime = new Date(new Date().setHours(resetValue.split(':')[0] * 1, resetValue.split(':')[1] * 1, 0, 0));
-		localStorage.setItem(PREFIX + 'jankenReset', resetTime);
+		localStorage.setItem('jankenReset', resetTime);
 		for(let i = 1; i <= 3; i++){
-			if(localStorage.getItem(PREFIX + 'jankenResult' + i)){
-				localStorage.removeItem(PREFIX + 'jankenResult' + i);
+			if(localStorage.getItem('jankenResult' + i)){
+				localStorage.removeItem('jankenResult' + i);
 			}
 		}
         MessageBox.Alert(
@@ -383,14 +402,14 @@ function showMessage(jankenNum){
 	if(now < janken_time_from || janken_time_to < now){
 		$('confirmOk').textContent = 'OK';
 		MessageBox.Alert(
-			"只今の時間はじゃんけんは実施できません",
+			"只今の時間はじゃんけんを選択できません",
 			function(){}
 		);
 	}
 	else{
 		let selectedFlg = false;
-		if(localStorage.getItem(PREFIX + 'jankenResult' + jankenNum)){
-			const result = JSON.parse(localStorage.getItem(PREFIX + 'jankenResult' + jankenNum));
+		if(localStorage.getItem('jankenResult' + jankenNum)){
+			const result = JSON.parse(localStorage.getItem('jankenResult' + jankenNum));
 			if(result['selected']){
 				selectedFlg = true;
 			}
@@ -425,8 +444,8 @@ function showMessage(jankenNum){
 			function(){
 				const jankenRadio = document.getElementsByName('janken' + jankenNum);
                 let result;
-                if(localStorage.getItem(PREFIX + 'jankenResult' + jankenNum)){
-                    result = JSON.parse(localStorage.getItem(PREFIX + 'jankenResult' + jankenNum));
+                if(localStorage.getItem('jankenResult' + jankenNum)){
+                    result = JSON.parse(localStorage.getItem('jankenResult' + jankenNum));
                 }
                 else{
                     result = {};
@@ -435,7 +454,9 @@ function showMessage(jankenNum){
 				for(let i = 0;i < jankenRadio.length; i++){
 					if(jankenRadio[i].checked){
 						result['selected'] = jankenRadio[i].value;
-						localStorage.setItem(PREFIX + 'jankenResult' + jankenNum, JSON.stringify(result));
+						db.storage.put({storageKey: 'jankenResult' + jankenNum, storageValue: JSON.stringify(result)});
+						db.put({storageKey: 'jankenResult' + jankenNum, storageValue: JSON.stringify(result)});
+						localStorage.setItem('jankenResult' + jankenNum, JSON.stringify(result));
 					}
 					jankenRadio[i].disabled = true;
 				}
@@ -490,7 +511,7 @@ function countdownTimer(){
 				if(hour > 0) insert = '<span class="h">' + addZero(hour) + '時間'+'</span>';
 				if(minutes > 0) insert +=  '<span class="m">' + addZero(minutes) +'分' + '</span>';
 				insert += '<span class="s">' + addZero(second)+ '秒'+ '</span>';
-                insert = '選択終了まで残り' + insert;
+                insert = '選択終了まで残り ' + insert;
 				disabledFlg = false;
 			
 			}
