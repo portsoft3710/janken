@@ -146,6 +146,8 @@ db.version(1).stores({
 		{storageKey: POINT_KEY, storageValue: 99}]);
 */
 const data = db.storage.toArray().then(function(storage){
+	    alert(storage.length);
+
 	for(let data of storage){
 		if(data.storageValue){
 			localStorage.setItem(data.storageKey, data.storageValue);
