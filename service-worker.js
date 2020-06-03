@@ -1,11 +1,11 @@
 // service-worker.js
-var CACHE_NAME = 'janken-cache-2020060301';
+var CACHE_NAME = 'janken-cache-2020060302';
 var urlsToCache = [
     'index.html',
     'ok.html',
     'kokan_thankyou.html',
-    '/css/style.css',
-    '/css/messageBox.css'
+    './css/style.css',
+    './css/messageBox.css'
 ];
 self.addEventListener('install', function(event) {
   // Perform install steps
