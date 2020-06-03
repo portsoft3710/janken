@@ -1,5 +1,5 @@
 // service-worker.js
-var CACHE_NAME = 'janken-cache-2020060302';
+var CACHE_NAME = 'janken-cache-2020060303';
 var urlsToCache = [
     'index.html',
     'ok.html',
