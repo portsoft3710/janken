@@ -145,14 +145,14 @@ db.version(1).stores({
 		{storageKey: "jankenResult3"},
 		{storageKey: POINT_KEY, storageValue: 99}]);
 */
-const data = db.storage.toArray().then(function(storage){
+/*const data = db.storage.toArray().then(function(storage){
 	for(let data of storage){
 		if(data.storageValue){
 			localStorage.setItem(data.storageKey, data.storageValue);
 		}
-	}
+	}*/
 	bodyOnload();
-});
+/*});*/
 function bodyOnload(){
     localStorage.removeItem('pointChnage');
 	if(RESET){
