@@ -36,6 +36,7 @@ window.addEventListener('load', function() {
 <div class="point-wrapper">
 	<div><button type="button" onclick="pointPresent();">Point<br>応募</button></div>
 	<div><img src="images/002.png"></div>
+    <div><button type="button">詳細</button></div>
 </div>
 <span class="point" style="position: static;">
 <p id="msg"></p></span>
@@ -77,20 +78,11 @@ window.addEventListener('load', function() {
 	<label for="janken3-p" onclick="showMessage('3')"><img src="images/pa.png"></label></div>
 </div>
 <div class="timer" id="timer3"  style="text-align: center; margin-top: 0px;"></div>
-
-<!--<div id="howto">
-	<a href="howto.html">使い方</a>
-</div>
-
-<div id="back" style="text-align: center;">
-<a href="trigger_howto.html">基本機能・注意事項</a>
-</div>-->
-
-<br>
+<div class="reload"><button type="button" onclick="reload()">リロード</button></div>
 <input type="time" id="resetTime"><button type="button" id="reset" onclick="reset()">リセット</button>
-<br>
-       
 </div>
+<footer>
+</footer>
 <div id="log"></div>
 <div id="screenLock"></div>
 <div id="messageBox" style="visibility: hidden;">
@@ -532,6 +524,9 @@ function countdownTimer(){
 		}
 	}
 	setTimeout(countdownTimer, 10);
+}
+function reload(){
+    location.reload();
 }
 </script>
 </body>
