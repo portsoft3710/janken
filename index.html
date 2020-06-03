@@ -138,13 +138,13 @@ var db = new Dexie("jankenDB");
 db.version(1).stores({
     storage: "storageKey, storageValue"
 });
-db.storage.bulkPut([
+/*db.storage.bulkPut([
 		{storageKey: "jankenReset"},
 		{storageKey: "jankenResult1"},
 		{storageKey: "jankenResult2"},
 		{storageKey: "jankenResult3"},
 		{storageKey: POINT_KEY, storageValue: 99}]);
-
+*/
 const data = db.storage.toArray().then(function(storage){
     
 	for(let data of storage){
