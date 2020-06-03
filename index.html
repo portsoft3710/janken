@@ -156,7 +156,9 @@ const data = db.storage.toArray().then(function(storage){
 function bodyOnload(){
     localStorage.removeItem('pointChnage');
 	if(RESET){
-		localStorage.setItem('jankenReset', RESET_TIME);
+		db.storage.put({storageKey: 'jankenReset', storageValue: RESET_TIME});
+        localStorage.setItem('jankenReset', RESET_TIME);
+        
 		for(let i = 1; i <= 3; i++){
 			if(localStorage.getItem('jankenResult' + i)){
 				const result = JSON.parse(localStorage.getItem('jankenResult' + i));
@@ -173,6 +175,7 @@ function bodyOnload(){
                        }
                     }
                 }
+                db.storage.put({storageKey: 'jankenResult' + i, storageValue: JSON.stringify(result)});
                 localStorage.setItem('jankenResult' + i, JSON.stringify(result));
 			}
 		}
@@ -222,7 +225,11 @@ function doJanken(jankenNum){
 				curretPoint = localStorage.getItem(POINT_KEY) * 1;
 			}
 			curretPoint+= result['point'] * 1;
-			localStorage.setItem('jankenResult' + jankenNum, JSON.stringify(result));
+
+            db.storage.put({storageKey: 'jankenResult' + jankenNum, storageValue: JSON.stringify(result)});
+            db.storage.put({storageKey: POINT_KEY, storageValue: curretPoint});
+			
+            localStorage.setItem('jankenResult' + jankenNum, JSON.stringify(result));
             localStorage.setItem(POINT_KEY, curretPoint);
             pointUse(curretPoint);
 			MessageBox.Alert(
@@ -236,6 +243,7 @@ function doJanken(jankenNum){
 		const result = {};
 		result['point'] = 0;
 		result['resultTime'] = new Date();
+        db.storage.put({storageKey: 'jankenResult' + jankenNum, storageValue: JSON.stringify(result)});
 		localStorage.setItem('jankenResult' + jankenNum, JSON.stringify(result));
 	}
 }
@@ -323,7 +331,7 @@ function pointPresent(){
 function dispCurrentPoint(){
 
 	if(localStorage.getItem(POINT_KEY) && localStorage.getItem(POINT_KEY) * 1 > MAX_POINT){
-		db.put({storageKey: POINT_KEY, storageValue: MAX_POINT});
+		db.storage.put({storageKey: POINT_KEY, storageValue: MAX_POINT});
 		localStorage.setItem(POINT_KEY, MAX_POINT);
 	}
 	if(localStorage.getItem(POINT_KEY)){
@@ -357,6 +365,7 @@ function reset(){
 	const resetValue = $('resetTime').value;
 	if(resetValue !== ''){
 		const resetTime = new Date(new Date().setHours(resetValue.split(':')[0] * 1, resetValue.split(':')[1] * 1, 0, 0));
+        db.storage.put({storageKey: 'jankenReset', storageValue: resetTime});
 		localStorage.setItem('jankenReset', resetTime);
 		for(let i = 1; i <= 3; i++){
 			if(localStorage.getItem('jankenResult' + i)){
@@ -447,7 +456,6 @@ function showMessage(jankenNum){
 					if(jankenRadio[i].checked){
 						result['selected'] = jankenRadio[i].value;
 						db.storage.put({storageKey: 'jankenResult' + jankenNum, storageValue: JSON.stringify(result)});
-						db.put({storageKey: 'jankenResult' + jankenNum, storageValue: JSON.stringify(result)});
 						localStorage.setItem('jankenResult' + jankenNum, JSON.stringify(result));
 					}
 					jankenRadio[i].disabled = true;
