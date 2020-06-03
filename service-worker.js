@@ -3,7 +3,7 @@ var CACHE_NAME = 'janken-cache-2020060301';
 var urlsToCache = [
     'index.html',
     'ok.html',
-    'index.html',
+    'kokan_thankyou.html',
     '/css/style.css',
     '/css/messageBox.css'
 ];
