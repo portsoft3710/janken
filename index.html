@@ -113,21 +113,21 @@ RESULT_MESSAGE[POINT_WIN] = '勝ちました！　おめでとう';
 RESULT_MESSAGE[POINT_DRAW] = 'あいこでした。。';
 RESULT_MESSAGE[POINT_LOSE] = '残念。。　負けました';
 
-//ジャンケンを選択できる時間(何時～何時まで
+//ジャンケンを選択できる時間(何時～何時まで)
 var JANKEN_TIME1_FROM = new Date(new Date().setHours(0, 0, 0));
 var JANKEN_TIME1_TO = new Date(new Date().setHours(23, 59, 0));
-var JANKEN_TIME2_FROM = new Date(new Date().setHours(12, 00, 01));
+var JANKEN_TIME2_FROM = new Date(new Date().setHours(0, 00, 01));
 var JANKEN_TIME2_TO = new Date(new Date().setHours(23, 59, 0));
-var JANKEN_TIME3_FROM = new Date(new Date().setHours(18, 00, 01));
+var JANKEN_TIME3_FROM = new Date(new Date().setHours(0, 00, 01));
 var JANKEN_TIME3_TO = new Date(new Date().setHours(23, 59, 0));
 
-var JANKEN_G = 'JANKEN_G'
+var JANKEN_G = 'JANKEN_G';
 var JANKEN_C = 'JANKEN_C';
 var JANKEN_P = 'JANKEN_P';
 
-var JANKEN_TIME1 = {time: new Date(new Date().setHours(23, 57, 0)), hand: JANKEN_G};
-var JANKEN_TIME2 = {time: new Date(new Date().setHours(23, 58, 0)), hand: JANKEN_C};
-var JANKEN_TIME3 = {time: new Date(new Date().setHours(23, 59, 0)), hand: JANKEN_P};
+var JANKEN_TIME1 = {time: new Date(new Date().setHours(12, 00, 03)), hand: JANKEN_G};
+var JANKEN_TIME2 = {time: new Date(new Date().setHours(18, 00, 03)), hand: JANKEN_C};
+var JANKEN_TIME3 = {time: new Date(new Date().setHours(23, 00, 03)), hand: JANKEN_P};
 
 // RESETがtrueの場合リセット→ RESET_TIME以前の時間に取得したトリガーは無効として扱う
 var RESET = true;
@@ -146,22 +146,17 @@ db.version(1).stores({
 		{storageKey: POINT_KEY, storageValue: 99}]);
 */
 const data = db.storage.toArray().then(function(storage){
-    
 	for(let data of storage){
 		if(data.storageValue){
-            
 			localStorage.setItem(data.storageKey, data.storageValue);
 		}
 	}
 	bodyOnload();
 });
 function bodyOnload(){
-    db.storage.delete('pointChnage');
     localStorage.removeItem('pointChnage');
 	if(RESET){
-		db.storage.put({storageKey: 'jankenReset', storageValue: RESET_TIME});
-        localStorage.setItem('jankenReset', RESET_TIME);
-        
+		localStorage.setItem('jankenReset', RESET_TIME);
 		for(let i = 1; i <= 3; i++){
 			if(localStorage.getItem('jankenResult' + i)){
 				const result = JSON.parse(localStorage.getItem('jankenResult' + i));
@@ -178,7 +173,6 @@ function bodyOnload(){
                        }
                     }
                 }
-                db.storage.put({storageKey: 'jankenResult' + i, storageValue: JSON.stringify(result)});
                 localStorage.setItem('jankenResult' + i, JSON.stringify(result));
 			}
 		}
@@ -196,7 +190,6 @@ function init() {
 		if(localStorage.getItem('jankenResult' + i)){
 			const result = JSON.parse(localStorage.getItem('jankenResult' + i));
 			if(new Date(result['jankenTime']) < today00){
-                db.storage.delete('jankenResult' + i);
 				localStorage.removeItem('jankenResult' + i);
 			}
 			else{
@@ -229,11 +222,7 @@ function doJanken(jankenNum){
 				curretPoint = localStorage.getItem(POINT_KEY) * 1;
 			}
 			curretPoint+= result['point'] * 1;
-
-            db.storage.put({storageKey: 'jankenResult' + jankenNum, storageValue: JSON.stringify(result)});
-            db.storage.put({storageKey: POINT_KEY, storageValue: curretPoint});
-			
-            localStorage.setItem('jankenResult' + jankenNum, JSON.stringify(result));
+			localStorage.setItem('jankenResult' + jankenNum, JSON.stringify(result));
             localStorage.setItem(POINT_KEY, curretPoint);
             pointUse(curretPoint);
 			MessageBox.Alert(
@@ -247,7 +236,6 @@ function doJanken(jankenNum){
 		const result = {};
 		result['point'] = 0;
 		result['resultTime'] = new Date();
-        db.storage.put({storageKey: 'jankenResult' + jankenNum, storageValue: JSON.stringify(result)});
 		localStorage.setItem('jankenResult' + jankenNum, JSON.stringify(result));
 	}
 }
@@ -335,7 +323,7 @@ function pointPresent(){
 function dispCurrentPoint(){
 
 	if(localStorage.getItem(POINT_KEY) && localStorage.getItem(POINT_KEY) * 1 > MAX_POINT){
-		db.storage.put({storageKey: POINT_KEY, storageValue: MAX_POINT});
+		db.put({storageKey: POINT_KEY, storageValue: MAX_POINT});
 		localStorage.setItem(POINT_KEY, MAX_POINT);
 	}
 	if(localStorage.getItem(POINT_KEY)){
@@ -369,11 +357,9 @@ function reset(){
 	const resetValue = $('resetTime').value;
 	if(resetValue !== ''){
 		const resetTime = new Date(new Date().setHours(resetValue.split(':')[0] * 1, resetValue.split(':')[1] * 1, 0, 0));
-        db.storage.put({storageKey: 'jankenReset', storageValue: resetTime});
 		localStorage.setItem('jankenReset', resetTime);
 		for(let i = 1; i <= 3; i++){
 			if(localStorage.getItem('jankenResult' + i)){
-                db.storage.delete('jankenResult' + i);
 				localStorage.removeItem('jankenResult' + i);
 			}
 		}
