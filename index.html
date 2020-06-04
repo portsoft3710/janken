@@ -506,7 +506,7 @@ function countdownTimer(){
 			else{
                 let result = {};
 				if(localStorage.getItem('jankenResult' + i)){
-                    result = JSON.parse(localStorage.getItem('jankenResult' + jankenNum));
+                    result = JSON.parse(localStorage.getItem('jankenResult' + i));
                 }
 				result['point'] = 0;
 				result['resultTime'] = new Date();
