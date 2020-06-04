@@ -29,7 +29,7 @@ window.addEventListener('load', function() {
 </script>
 </head>
 
-<body style="background-color:#fff;">
+<body onload="bodyOnload()" style="background-color:#fff;">
 <link href="https://fonts.googleapis.com/css?family=Kosugi+Maru" rel="stylesheet">
 
 <div id="top" style="background-color:  #66cdaa; padding-top: 5px; padding-bottom: 2px; width: 100%; text-align: center;">
@@ -133,33 +133,9 @@ var JANKEN_TIME3 = {time: new Date(new Date().setHours(22, 11, 0)), hand: JANKEN
 var RESET = false;
 var RESET_TIME = new Date(new Date().setHours(10, 17, 0));
 	
-//storageInit();
-var db = new Dexie("jankenDB");
-db.version(1).stores({
-    storage: "storageKey, storageValue"
-});
-/*db.storage.bulkPut([
-		{storageKey: "jankenReset"},
-		{storageKey: "jankenResult1"},
-		{storageKey: "jankenResult2"},
-		{storageKey: "jankenResult3"},
-		{storageKey: POINT_KEY, storageValue: 99}]);
-*/
-const data = db.storage.toArray().then(function(storage){
-    
-	for(let data of storage){
-		if(data.storageValue){
-            
-			localStorage.setItem(data.storageKey, data.storageValue);
-		}
-	}
-	bodyOnload();
-});
 function bodyOnload(){
-    db.storage.delete('pointChnage');
     localStorage.removeItem('pointChnage');
 	if(RESET){
-		db.storage.put({storageKey: 'jankenReset', storageValue: RESET_TIME});
         localStorage.setItem('jankenReset', RESET_TIME);
         
 		for(let i = 1; i <= 3; i++){
@@ -178,7 +154,6 @@ function bodyOnload(){
                        }
                     }
                 }
-                db.storage.put({storageKey: 'jankenResult' + i, storageValue: JSON.stringify(result)});
                 localStorage.setItem('jankenResult' + i, JSON.stringify(result));
 			}
 		}
@@ -196,7 +171,6 @@ function init() {
 		if(localStorage.getItem('jankenResult' + i)){
 			const result = JSON.parse(localStorage.getItem('jankenResult' + i));
 			if(new Date(result['jankenTime']) < today00){
-                db.storage.delete('jankenResult' + i);
 				localStorage.removeItem('jankenResult' + i);
 			}
 			else{
@@ -229,9 +203,6 @@ function doJanken(jankenNum){
 				curretPoint = localStorage.getItem(POINT_KEY) * 1;
 			}
 			curretPoint+= result['point'] * 1;
-
-            db.storage.put({storageKey: 'jankenResult' + jankenNum, storageValue: JSON.stringify(result)});
-            db.storage.put({storageKey: POINT_KEY, storageValue: curretPoint});
 			
             localStorage.setItem('jankenResult' + jankenNum, JSON.stringify(result));
             localStorage.setItem(POINT_KEY, curretPoint);
@@ -247,7 +218,6 @@ function doJanken(jankenNum){
 		const result = {};
 		result['point'] = 0;
 		result['resultTime'] = new Date();
-        db.storage.put({storageKey: 'jankenResult' + jankenNum, storageValue: JSON.stringify(result)});
 		localStorage.setItem('jankenResult' + jankenNum, JSON.stringify(result));
 	}
 }
@@ -335,7 +305,6 @@ function pointPresent(){
 function dispCurrentPoint(){
 
 	if(localStorage.getItem(POINT_KEY) && localStorage.getItem(POINT_KEY) * 1 > MAX_POINT){
-		db.storage.put({storageKey: POINT_KEY, storageValue: MAX_POINT});
 		localStorage.setItem(POINT_KEY, MAX_POINT);
 	}
 	if(localStorage.getItem(POINT_KEY)){
@@ -369,11 +338,9 @@ function reset(){
 	const resetValue = $('resetTime').value;
 	if(resetValue !== ''){
 		const resetTime = new Date(new Date().setHours(resetValue.split(':')[0] * 1, resetValue.split(':')[1] * 1, 0, 0));
-        db.storage.put({storageKey: 'jankenReset', storageValue: resetTime});
 		localStorage.setItem('jankenReset', resetTime);
 		for(let i = 1; i <= 3; i++){
 			if(localStorage.getItem('jankenResult' + i)){
-                db.storage.delete('jankenResult' + i);
 				localStorage.removeItem('jankenResult' + i);
 			}
 		}
@@ -460,7 +427,6 @@ function showMessage(jankenNum){
 				for(let i = 0;i < jankenRadio.length; i++){
 					if(jankenRadio[i].checked){
 						result['selected'] = jankenRadio[i].value;
-						db.storage.put({storageKey: 'jankenResult' + jankenNum, storageValue: JSON.stringify(result)});
 						localStorage.setItem('jankenResult' + jankenNum, JSON.stringify(result));
 					}
 					jankenRadio[i].disabled = true;
@@ -541,7 +507,6 @@ function countdownTimer(){
 				const result = {};
 				result['point'] = 0;
 				result['resultTime'] = new Date();
-				db.storage.put({storageKey: 'jankenResult' + jankenNum, storageValue: JSON.stringify(result)});
 				localStorage.setItem('jankenResult' + jankenNum, JSON.stringify(result));
 			}
 		}
