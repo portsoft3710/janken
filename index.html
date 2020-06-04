@@ -125,9 +125,9 @@ var JANKEN_G = 'JANKEN_G'
 var JANKEN_C = 'JANKEN_C';
 var JANKEN_P = 'JANKEN_P';
 
-var JANKEN_TIME1 = {time: new Date(new Date().setHours(22, 20, 0)), hand: JANKEN_G};
-var JANKEN_TIME2 = {time: new Date(new Date().setHours(22, 22, 0)), hand: JANKEN_C};
-var JANKEN_TIME3 = {time: new Date(new Date().setHours(22, 24, 0)), hand: JANKEN_P};
+var JANKEN_TIME1 = {time: new Date(new Date().setHours(22, 40, 0)), hand: JANKEN_G};
+var JANKEN_TIME2 = {time: new Date(new Date().setHours(22, 41, 0)), hand: JANKEN_C};
+var JANKEN_TIME3 = {time: new Date(new Date().setHours(22, 42, 0)), hand: JANKEN_P};
 
 // RESETがtrueの場合リセット→ RESET_TIME以前の時間に取得したトリガーは無効として扱う
 var RESET = false;
@@ -504,7 +504,10 @@ function countdownTimer(){
 				doJanken(i);				
 			}
 			else{
-				const result = {};
+                let result = {};
+				if(localStorage.getItem('jankenResult' + i)){
+                    result = JSON.parse(localStorage.getItem('jankenResult' + jankenNum));
+                }
 				result['point'] = 0;
 				result['resultTime'] = new Date();
 				localStorage.setItem('jankenResult' + i, JSON.stringify(result));
