@@ -532,7 +532,6 @@ function countdownTimer(){
 		for(let i = 0;i < jankenRadio.length; i++){
 			jankenRadio[i].disabled = disabledFlg;
 		}
-		debugger;
 		if(janken_time['time'] <= now){
 			const inTime = new Date(janken_time['time'].setSeconds(janken_time['time'].getSeconds() + 20));
 			if(inTime >= now){
