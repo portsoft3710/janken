@@ -9,50 +9,50 @@ body{
 }
 .point-wrapper{
 	display: flex;
-        height: 63px;
+        height: 62px;
 }
 .point-wrapper div:first-of-type,
 .point-wrapper div:last-of-type{
-	width: 15vw;
+	width: 16vw;
 	position: relative;
 }
 .point-wrapper div:first-of-type button,
 .point-wrapper div:last-of-type button{
-	width: 15vw;
+	width: 16vw;
 	height: 75%;
-	border-radius: 10px;
+	border-radius: 8px;
 	padding: 4px;
 	font-size: 15px;
 	color: #fff;
 	background-color: coral;
 	position: absolute;
 	top: 50%;
-	left: 10px;
+	left: 13px;
 	transform: translateY(-50%);
 }
 .point-wrapper div:nth-of-type(2){
-	width: 65vw;
+	width: 63vw;
     position: relative;
 }
 .point-wrapper div:nth-of-type(2) img{
 	width: 100%;
 	height: auto;
-    margin: 0 auto;
+    margin: 10 auto;
     position: absolute;
 	top: 50%;
-	left: 10px;
+	left: 13px;
 	transform: translateY(-50%);
 }
 .point p {
 	font-weight: normal;
-	font-size: 1.1em;/*サイズ2倍*/
+	font-size: 1.2em;/*サイズ2倍*/
 	position: absolute;
 	top: 5%;
-	left: 60%;
+	left: 62%;
  	width: 30%;
-	height: 1.5em;
-	line-height: 1.9em;
-	font-family:sans-serif;/*20190129 g3大坪追加*/
+	height: 1.6em;
+	line-height: 1.5em;
+	font-family:sans-serif;/*20190129 */
 	-ms-transform: translate(-50%,-50%);
 	-webkit-transform: translate(-50%,-50%);
 	transform: translate(-50%,-50%);
@@ -71,7 +71,7 @@ body{
 	position: absolute;
 	margin: 0;
 	top: 0;
-	left: 0;
+	left: 10;
 	background-color: #fff;
 	color: #f00;
 	padding-left: 10px;
@@ -99,13 +99,18 @@ body{
     margin-bottom: 10px;
 }
 .reload button{
-	width: 25vw;
-	border-radius: 10px;
+	width: 50vw;
+	border-radius: 5px;
 	padding: 4px;
 	font-size: 15px;
 	color: #fff;
 	background-color: coral;
 }
+
+.reload{
+    text-align: center;
+}
+
 #howto {
      margin: 20px auto;
      text-align: center;
@@ -125,7 +130,6 @@ body{
     padding: 0 2.0rem;
 }
 
-
 #back a{
     display: inline-block;
     background-color: #00bebc;
@@ -137,13 +141,15 @@ body{
     border-radius: 0.5rem;
     padding: 0 2.0rem;
 }
-.reload{
-    text-align: center;
-}
+
 footer{
     position: fixed;
     height: 20px;
     width: 100vw;
     bottom: 0;
     background-color: #333;
+}
+
+footer a{
+	color: white;
 }
