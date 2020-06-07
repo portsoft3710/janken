@@ -43,17 +43,24 @@ div{
     border-radius: 10px;/*角の丸み*/
 }
 
+footer{
+    position: fixed;
+    height: 20px;
+    width: 100vw;
+    bottom: 0;
+    background-color: #333;
+}
 </style>
+
 <script>
-var PREFIX = 'Gxh9Kas';
-var POINT_KEY = PREFIX + 'Key';
+var POINT_KEY = 'jankenPoint';
 var CHANGE_POINT = 100;
     let currentPoint = 0;
-	if(localStorage.getItem(PREFIX + POINT_KEY)){
-		currentPoint = localStorage.getItem(PREFIX + POINT_KEY) * 1;
+	if(localStorage.getItem(POINT_KEY)){
+		currentPoint = localStorage.getItem(POINT_KEY) * 1;
 	}
     currentPoint -= CHANGE_POINT;
-    localStorage.setItem(PREFIX + POINT_KEY, currentPoint);
+    localStorage.setItem(POINT_KEY, currentPoint);
 </script>
 </head>
 
@@ -70,5 +77,7 @@ var CHANGE_POINT = 100;
 <a href="index.html">TOP画面に戻る</a>
 <br>
 <br>
+<footer>
+</footer>
 </body>
 </html>
