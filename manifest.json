@@ -22,7 +22,7 @@
       "type": "image/png"
     },
     {
-      "src": "./images/splashscreens/splash.png",
+      "src": "./images/icons/icon-144x144.png",
       "sizes": "144x144",
       "type": "image/png"
     },
@@ -42,7 +42,7 @@
       "type": "image/png"
     },
     {
-      "src": "./images/icons/icon-512x512.png",
+      "src": "./images/splashscreens/splash.png",
       "sizes": "512x512",
       "type": "image/png"
     }
